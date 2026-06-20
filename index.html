@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>GALDERA</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
+
+  :root{
+    --stone:#0f0c0b;
+    --stone-deep:#070504;
+    --brick:#2c1310;
+    --brick-edge:#4a1e16;
+    --ember:#e8581c;
+    --ember-bright:#ff8a3d;
+    --gold:#c9963a;
+    --text:#e8ddd0;
+    --text-dim:#9c897a;
+    --blood:#8a1f1f;
+    --blood-bright:#c43a2f;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--stone);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0px, rgba(0,0,0,0.35) 2px, transparent 2px, transparent 34px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 68px),
+      radial-gradient(ellipse at 15% 0%, rgba(232,88,28,0.10), transparent 45%),
+      radial-gradient(ellipse at 85% 90%, rgba(138,31,31,0.10), transparent 45%);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:20px;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+    transition:background-color .5s, color .5s;
+  }
+
+  body.sanctuary-mode{
+    --ember:#3a8de8;
+    --ember-bright:#6fb4ff;
+    --brick:#f4f1ea;
+    --brick-edge:#d8d2c2;
+    --stone-deep:#ffffff;
+    --text:#2a2620;
+    --text-dim:#6b6354;
+    --gold:#3a6fc9;
+    background:#ffffff;
+    background-image:none;
+    color:#2a2620;
+  }
+  body.sanctuary-mode .ember-spark{
+    box-shadow:0 0 8px 1px rgba(58,141,232,0.7);
+  }
+
+  body.ocean-mode{
+    --ember:#bfe3ff;
+    --ember-bright:#ffffff;
+    --brick:#0d3a5c;
+    --brick-edge:#1e6091;
+    --stone-deep:#041c2e;
+    --text:#eaf6ff;
+    --text-dim:#8fb8d6;
+    --gold:#ffe89a;
+    --blood:#0a4d75;
+    --blood-bright:#2f86c4;
+    background:linear-gradient(180deg, #062f4d 0%, #04223a 55%, #021627 100%);
+    background-image:none;
+    color:#eaf6ff;
+  }
+  body.ocean-mode .ember-layer{
+    display:none;
+  }
+
+  .pixel{font-family:'Press Start 2P', monospace;}
+
+  /* Ember particle layer - signature element, replaces CRT scanlines */
+  .ember-layer{
+    pointer-events:none;
+    position:fixed;
+    inset:0;
+    z-index:5;
+    overflow:hidden;
+  }
+  .ember-spark{
+    position:absolute;
+    bottom:-10px;
+    width:3px;
+    height:3px;
+    background:var(--ember-bright);
+    box-shadow:0 0 6px 1px var(--ember);
+    border-radius:50%;
+    opacity:0;
+    animation:rise linear infinite;
+  }
+  @keyframes rise{
+    0%{opacity:0; transform:translateY(0) translateX(0);}
+    8%{opacity:0.9;}
+    90%{opacity:0.5;}
+    100%{opacity:0; transform:translateY(-100vh) translateX(var(--drift, 20px));}
+  }
+
+  /* Star layer - shown only in ocean-mode, twinkling instead of rising */
+  .star-layer{
+    pointer-events:none;
+    position:fixed;
+    inset:0;
+    z-index:5;
+    overflow:hidden;
+    display:none;
+  }
+  body.ocean-mode .star-layer{ display:block; }
+  .star-twinkle{
+    position:absolute;
+    background:#ffffff;
+    border-radius:50%;
+    box-shadow:0 0 4px 1px rgba(255,255,255,0.8);
+    animation:twinkle ease-in-out infinite;
+  }
+  @keyframes twinkle{
+    0%, 100%{opacity:0.15; transform:scale(0.8);}
+    50%{opacity:1; transform:scale(1.2);}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .ember-spark{animation:none; display:none;}
+    .star-twinkle{animation:none; opacity:0.6;}
+    *{transition:none !important;}
+  }
+
+  a{color:inherit;}
+
+  /* ===== LAYOUT SHELL ===== */
+  .shell{
+    display:flex;
+    min-height:100vh;
+    position:relative;
+    z-index:2;
+  }
+
+  /* ===== LEFT SIDEBAR ===== */
+  .sidebar{
+    width:200px;
+    flex-shrink:0;
+    background:linear-gradient(180deg, var(--stone-deep), #0a0807);
+    border-right:4px solid var(--brick-edge);
+    padding:24px 16px;
+    display:flex;
+    flex-direction:column;
+    gap:26px;
+    position:sticky;
+    top:0;
+    height:100vh;
+  }
+  .sigil{
+    display:flex;
+    justify-content:center;
+  }
+  .mini-cal{
+    width:38px;
+    height:34px;
+    background:var(--brick);
+    border:2px solid var(--ember);
+    border-radius:3px;
+    position:relative;
+    box-shadow:0 0 10px rgba(232,88,28,0.35);
+  }
+  .mini-cal::before,
+  .mini-cal::after{
+    content:'';
+    position:absolute;
+    top:-6px;
+    width:3px;
+    height:8px;
+    background:var(--gold);
+    border-radius:1px;
+  }
+  .mini-cal::before{ left:7px; }
+  .mini-cal::after{ right:7px; }
+  .mini-cal-header{
+    height:9px;
+    background:var(--ember);
+    border-radius:1px 1px 0 0;
+  }
+  .mini-cal-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:2px;
+    padding:4px;
+  }
+  .mini-cal-grid span{
+    width:100%;
+    aspect-ratio:1;
+    background:var(--text-dim);
+    opacity:0.35;
+    border-radius:1px;
+  }
+  .mini-cal-grid span.today{
+    background:var(--gold);
+    opacity:1;
+    box-shadow:0 0 4px rgba(201,150,58,0.8);
+  }
+  .clock-block{
+    border:2px solid var(--brick-edge);
+    background:rgba(0,0,0,0.3);
+    padding:14px 10px;
+    text-align:center;
+  }
+  .clock-time{
+    font-family:'Press Start 2P', monospace;
+    font-size:18px;
+    color:var(--ember-bright);
+    letter-spacing:1px;
+    text-shadow:0 0 8px rgba(255,138,61,0.5);
+  }
+  .clock-date{
+    margin-top:8px;
+    font-size:15px;
+    color:var(--text-dim);
+    line-height:1.4;
+  }
+
+  .globe-wrap{
+    margin-top:16px;
+    display:flex;
+    justify-content:center;
+    perspective:300px;
+  }
+  .globe{
+    width:64px;
+    height:64px;
+    border-radius:50%;
+    position:relative;
+    overflow:hidden;
+    background:radial-gradient(circle at 35% 30%, #3a1f16, var(--stone-deep) 75%);
+    box-shadow:
+      inset -10px -10px 18px rgba(0,0,0,0.6),
+      inset 6px 6px 14px rgba(255,138,61,0.15),
+      0 0 14px rgba(232,88,28,0.35);
+  }
+  .globe-band{
+    position:absolute;
+    left:-10%;
+    width:120%;
+    background:linear-gradient(180deg, var(--ember) 0%, var(--blood) 100%);
+    opacity:0.78;
+    border-radius:50%;
+    animation:spin-globe 9s linear infinite;
+  }
+  .band-1{
+    top:8%;
+    height:16px;
+    animation-delay:0s;
+  }
+  .band-2{
+    top:38%;
+    height:22px;
+    animation-delay:-3s;
+  }
+  .band-3{
+    top:70%;
+    height:14px;
+    animation-delay:-6s;
+  }
+  @keyframes spin-globe{
+    0%{ transform:translateX(-30%) scaleX(0.4); opacity:0.35; }
+    25%{ transform:translateX(-8%) scaleX(0.85); opacity:0.78; }
+    50%{ transform:translateX(15%) scaleX(1); opacity:0.85; }
+    75%{ transform:translateX(38%) scaleX(0.85); opacity:0.6; }
+    100%{ transform:translateX(60%) scaleX(0.4); opacity:0.35; }
+  }
+  .globe-shine{
+    position:absolute;
+    top:10%;
+    left:14%;
+    width:34%;
+    height:28%;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,200,150,0.35), transparent 70%);
+    pointer-events:none;
+  }
+  @media (prefers-reduced-motion: reduce){
+    .globe-band{animation:none; transform:translateX(15%) scaleX(1); opacity:0.7;}
+  }
+
+  .sidebar-label{
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--gold);
+    letter-spacing:1px;
+    margin-bottom:10px;
+  }
+  .sidebar-nav{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .side-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    padding:11px 10px;
+    cursor:pointer;
+    text-align:left;
+    transition:border-color .1s, color .1s, background .1s;
+  }
+  .side-btn:hover, .side-btn:focus-visible{
+    border-color:var(--ember);
+    color:var(--ember-bright);
+    outline:none;
+  }
+  .side-btn.active{
+    border-color:var(--ember);
+    color:var(--ember-bright);
+    background:#1a0d0a;
+  }
+
+  /* music block in sidebar */
+  .music-block{
+    margin-top:auto;
+    border:2px solid var(--brick-edge);
+    background:rgba(0,0,0,0.3);
+    padding:12px 10px;
+  }
+  .music-input{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:15px;
+    padding:6px 8px;
+    margin-top:8px;
+    outline:none;
+  }
+  .music-input:focus{border-color:var(--ember);}
+  .music-go{
+    width:100%;
+    margin-top:8px;
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    background:var(--blood);
+    border:2px solid var(--blood-bright);
+    color:var(--text);
+    padding:8px;
+    cursor:pointer;
+  }
+  .music-go:hover{background:var(--blood-bright);}
+  .music-embed-wrap{
+    margin-top:10px;
+  }
+  .music-embed-wrap iframe{
+    width:100%;
+    border:2px solid var(--brick-edge);
+  }
+  .music-hint{
+    font-size:13px;
+    color:var(--text-dim);
+    margin-top:6px;
+    line-height:1.3;
+  }
+  .music-clear{
+    font-size:13px;
+    color:var(--text-dim);
+    background:none;
+    border:none;
+    text-decoration:underline;
+    cursor:pointer;
+    padding:6px 0 0;
+  }
+  .music-clear:hover{color:var(--ember-bright);}
+
+  /* ===== MAIN ===== */
+  main{
+    flex:1;
+    max-width:1000px;
+    margin:0 auto;
+    padding:36px 28px 80px;
+    width:100%;
+  }
+
+  header.titleblock{
+    text-align:center;
+    margin-bottom:34px;
+  }
+  .logo{
+    font-size:clamp(24px, 5vw, 42px);
+    color:var(--ember-bright);
+    text-shadow:0 0 4px var(--blood), 0 0 24px rgba(232,88,28,0.45);
+    letter-spacing:3px;
+    margin:0;
+  }
+  .subtitle{
+    color:var(--text-dim);
+    font-size:18px;
+    margin-top:10px;
+    letter-spacing:1px;
+    font-style:italic;
+  }
+
+  .section-title{
+    font-family:'Press Start 2P', monospace;
+    font-size:16px;
+    color:var(--gold);
+    margin:0 0 22px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .section-title::before{
+    content:'🔥';
+    font-size:14px;
+  }
+
+  .filter-tabs{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:24px;
+  }
+  .filter-tab{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    color:var(--text-dim);
+    padding:9px 14px;
+    cursor:pointer;
+    transition:border-color .1s, color .1s;
+  }
+  .filter-tab:hover, .filter-tab:focus-visible{
+    border-color:var(--ember);
+    color:var(--ember-bright);
+    outline:none;
+  }
+  .filter-tab.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:#1a0d0a;
+  }
+
+  /* ===== CARTRIDGE GRID (post list) ===== */
+  .shelf{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(230px, 1fr));
+    gap:22px;
+  }
+  .cart{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    padding:0;
+    cursor:pointer;
+    position:relative;
+    box-shadow:5px 5px 0 var(--stone-deep);
+    transition:transform .1s, box-shadow .1s, border-color .1s;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+  .cart:hover, .cart:focus-visible{
+    transform:translate(-3px,-3px);
+    box-shadow:8px 8px 0 var(--stone-deep);
+    border-color:var(--ember);
+    outline:none;
+  }
+  .cart-top{
+    height:8px;
+    background:linear-gradient(90deg, var(--blood), var(--ember), var(--gold));
+  }
+  .cart-body{padding:16px;}
+  .cart-game{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    color:var(--gold);
+    letter-spacing:0.5px;
+    margin-bottom:8px;
+    line-height:1.6;
+  }
+  .cart-cat{
+    display:inline-block;
+    font-family:'Press Start 2P', monospace;
+    font-size:8px;
+    color:var(--stone-deep);
+    background:var(--ember-bright);
+    padding:3px 6px;
+    margin-bottom:8px;
+    letter-spacing:0.5px;
+  }
+  .cart-title{
+    font-size:24px;
+    color:var(--text);
+    margin:0 0 6px;
+    line-height:1.2;
+  }
+  .cart-meta{
+    color:var(--text-dim);
+    font-size:16px;
+    margin-bottom:10px;
+  }
+  .cart-excerpt{
+    color:var(--text-dim);
+    font-size:17px;
+    line-height:1.4;
+    max-height:4.2em;
+    overflow:hidden;
+  }
+  .cart-score{
+    margin-top:12px;
+    display:flex;
+    align-items:center;
+    gap:5px;
+  }
+  .flame{font-size:16px; color:#3a2620;}
+  .flame.filled{color:var(--ember);}
+
+  .verses-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+  .verse-card{
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    padding:18px;
+    transition:background-color .5s, border-color .5s;
+  }
+  .verse-card-text{
+    font-style:italic;
+    font-size:17px;
+    line-height:1.5;
+    color:var(--text);
+  }
+  .verse-card-ref{
+    margin-top:10px;
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--ember);
+    letter-spacing:0.5px;
+  }
+
+  .about-card{
+    background:rgba(13,58,92,0.55);
+    border:2px solid var(--brick-edge);
+    padding:30px;
+    max-width:680px;
+    margin:0 auto;
+    transition:background-color .5s, border-color .5s;
+  }
+  .about-name{
+    font-family:'Press Start 2P', monospace;
+    font-size:20px;
+    color:var(--gold);
+    margin-bottom:6px;
+    line-height:1.5;
+  }
+  .about-tagline{
+    color:var(--text-dim);
+    font-style:italic;
+    font-size:17px;
+    margin-bottom:22px;
+  }
+  .about-section{
+    margin-bottom:22px;
+  }
+  .about-section-label{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    color:var(--ember-bright);
+    letter-spacing:1px;
+    margin-bottom:10px;
+  }
+  .about-text{
+    font-size:18px;
+    line-height:1.6;
+    color:var(--text);
+  }
+  .about-langs{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:4px;
+  }
+  .about-tag{
+    background:rgba(255,255,255,0.08);
+    border:1px solid var(--brick-edge);
+    padding:5px 12px;
+    font-size:15px;
+    color:var(--text);
+  }
+  .about-anime-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(180px, 1fr));
+    gap:8px;
+  }
+  .about-anime-list li{
+    font-size:17px;
+    color:var(--text);
+    padding:8px 12px;
+    background:rgba(255,255,255,0.06);
+    border-left:2px solid var(--gold);
+  }
+  .about-likes{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:4px;
+  }
+  .about-like-chip{
+    font-size:16px;
+    color:var(--text);
+    background:rgba(255,255,255,0.08);
+    border:1px solid var(--brick-edge);
+    padding:6px 14px;
+  }
+
+  .empty-state{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--text-dim);
+    border:3px dashed var(--brick-edge);
+  }
+  .empty-state .pixel{
+    color:var(--gold);
+    font-size:13px;
+    display:block;
+    margin-bottom:14px;
+  }
+
+  /* ===== POST DETAIL ===== */
+  .post-view{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+  }
+  .post-view .cart-top{height:10px;}
+  .post-view-body{padding:28px;}
+  .back-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    background:none;
+    border:none;
+    color:var(--gold);
+    cursor:pointer;
+    margin-bottom:20px;
+    padding:0;
+  }
+  .back-btn:hover{color:var(--ember-bright);}
+  .post-view-game{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .post-view-title{
+    font-size:34px;
+    margin:0 0 10px;
+    color:var(--text);
+  }
+  .post-view-meta{
+    color:var(--text-dim);
+    font-size:16px;
+    margin-bottom:18px;
+    border-bottom:2px solid var(--brick-edge);
+    padding-bottom:18px;
+  }
+  .post-view-content{
+    font-size:19px;
+    line-height:1.6;
+    white-space:pre-wrap;
+    color:var(--text);
+  }
+  .post-view-score{
+    margin-top:24px;
+    padding-top:18px;
+    border-top:2px solid var(--brick-edge);
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .post-actions{
+    margin-top:26px;
+    display:flex;
+    gap:10px;
+  }
+  .danger-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    background:var(--stone-deep);
+    border:2px solid var(--blood-bright);
+    color:var(--blood-bright);
+    padding:10px 12px;
+    cursor:pointer;
+  }
+  .danger-btn:hover{background:var(--blood-bright); color:var(--text);}
+
+  /* ===== NEW POST FORM ===== */
+  .form-wrap{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:28px;
+  }
+  label{
+    display:block;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin:18px 0 8px;
+  }
+  label:first-child{margin-top:0;}
+  input[type=text], textarea, select{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:19px;
+    padding:10px 12px;
+    outline:none;
+  }
+  input[type=text]:focus, textarea:focus, select:focus{
+    border-color:var(--ember);
+  }
+  textarea{resize:vertical; min-height:160px; line-height:1.4;}
+  .score-picker{
+    display:flex;
+    gap:6px;
+    margin-top:4px;
+  }
+  .score-picker button{
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--brick-edge);
+    font-size:22px;
+    width:42px;
+    height:42px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .score-picker button.active{
+    color:var(--ember);
+    border-color:var(--ember);
+  }
+  .submit-btn{
+    margin-top:26px;
+    font-family:'Press Start 2P', monospace;
+    font-size:13px;
+    background:var(--ember);
+    border:3px solid var(--stone-deep);
+    color:var(--stone-deep);
+    padding:14px 22px;
+    cursor:pointer;
+    box-shadow:4px 4px 0 var(--stone-deep);
+    transition:transform .08s, box-shadow .08s;
+  }
+  .submit-btn:hover{
+    transform:translate(-2px,-2px);
+    box-shadow:6px 6px 0 var(--stone-deep);
+  }
+  .form-hint{
+    color:var(--text-dim);
+    font-size:15px;
+    margin-top:6px;
+  }
+  .status-msg{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--ember-bright);
+    margin-top:16px;
+    min-height:1em;
+  }
+  .draft-banner{
+    background:rgba(201,150,58,0.12);
+    border:2px solid var(--gold);
+    color:var(--gold);
+    font-size:15px;
+    padding:10px 14px;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .draft-discard{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:14px;
+    text-decoration:underline;
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  .draft-discard:hover{color:var(--blood-bright);}
+  .autosave-indicator{
+    font-size:13px;
+    color:var(--text-dim);
+    margin-top:10px;
+    min-height:1em;
+    opacity:0;
+    transition:opacity .3s;
+  }
+  .autosave-indicator.visible{opacity:1;}
+
+  footer{
+    text-align:center;
+    padding:30px 20px;
+    color:var(--text-dim);
+    font-size:15px;
+    border-top:3px solid var(--brick-edge);
+  }
+  .footer-pixel{
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--brick-edge);
+    margin-top:10px;
+    letter-spacing:1px;
+  }
+  .footer-verse{
+    margin-top:18px;
+    padding-top:16px;
+    border-top:1px solid rgba(74,30,22,0.5);
+    color:#5a4a3f;
+    font-size:15px;
+    font-style:italic;
+    line-height:1.5;
+    max-width:480px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .footer-verse cite{
+    display:block;
+    margin-top:6px;
+    font-style:normal;
+    font-size:13px;
+    letter-spacing:0.5px;
+  }
+  .verse-rotator{
+    cursor:pointer;
+    transition:color .25s;
+    user-select:none;
+  }
+  .verse-rotator:hover, .verse-rotator:focus-visible{
+    color:#7a6555;
+    outline:none;
+  }
+  .verse-rotator.fading{
+    opacity:0;
+    transition:opacity .2s;
+  }
+  .verse-hint{
+    margin-top:10px;
+    font-size:11px;
+    color:#3d322a;
+    letter-spacing:0.5px;
+  }
+
+  /* ===== PASSPHRASE GATE MODAL ===== */
+  .gate-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(7,5,4,0.85);
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+  }
+  .gate-box{
+    background:var(--brick);
+    border:3px solid var(--ember);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:26px;
+    max-width:340px;
+    width:100%;
+    text-align:center;
+  }
+  .gate-title{
+    font-family:'Press Start 2P', monospace;
+    font-size:12px;
+    color:var(--ember-bright);
+    margin-bottom:14px;
+  }
+  .gate-box input{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:19px;
+    padding:10px 12px;
+    outline:none;
+    margin-bottom:14px;
+  }
+  .gate-box input:focus{border-color:var(--ember);}
+  .gate-actions{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+  }
+  .gate-confirm{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    background:var(--ember);
+    border:2px solid var(--stone-deep);
+    color:var(--stone-deep);
+    padding:10px 16px;
+    cursor:pointer;
+  }
+  .gate-cancel{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    background:none;
+    border:2px solid var(--brick-edge);
+    color:var(--text-dim);
+    padding:10px 16px;
+    cursor:pointer;
+  }
+  .gate-error{
+    color:var(--blood-bright);
+    font-size:14px;
+    margin-top:-6px;
+    margin-bottom:10px;
+    min-height:1em;
+  }
+
+  .loading-row{
+    text-align:center;
+    padding:40px;
+    color:var(--text-dim);
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+  }
+
+  /* mobile: sidebar becomes a top bar */
+  @media (max-width:760px){
+    .shell{flex-direction:column;}
+    .sidebar{
+      width:100%;
+      height:auto;
+      position:relative;
+      flex-direction:row;
+      flex-wrap:wrap;
+      align-items:center;
+      padding:14px 16px;
+      gap:14px;
+      border-right:none;
+      border-bottom:4px solid var(--brick-edge);
+    }
+    .sigil{font-size:24px;}
+    .clock-block{flex:1; min-width:140px;}
+    .sidebar-nav{flex-direction:row; flex:1;}
+    .side-btn{flex:1; text-align:center;}
+    .music-block{width:100%; margin-top:0;}
+  }
+
+  @media (max-width:480px){
+    body{font-size:18px;}
+    .post-view-title{font-size:26px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="ember-layer" id="emberLayer"></div>
+<div class="star-layer" id="starLayer"></div>
+
+<div class="shell">
+
+  <aside class="sidebar">
+    <div class="sigil">
+      <div class="mini-cal">
+        <div class="mini-cal-header"></div>
+        <div class="mini-cal-grid" id="miniCalGrid">
+          <span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="clock-block">
+      <div class="clock-time" id="clockTime">00:00:00</div>
+      <div class="clock-date" id="clockDate">—</div>
+      <div class="globe-wrap">
+        <div class="globe">
+          <div class="globe-band band-1"></div>
+          <div class="globe-band band-2"></div>
+          <div class="globe-band band-3"></div>
+          <div class="globe-shine"></div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="sidebar-label">NAVIGATE</div>
+      <div class="sidebar-nav">
+        <button class="side-btn active" id="nav-home" onclick="showView('home')">HOME</button>
+        <button class="side-btn" id="nav-verses" onclick="showView('verses')">☦ VERSES</button>
+        <button class="side-btn" id="nav-about" onclick="showView('about')">⛵ ABOUT ME</button>
+        <button class="side-btn" id="nav-new" onclick="requireAuth(()=>showView('new'))">+ NEW POST</button>
+      </div>
+    </div>
+
+    <div class="music-block">
+      <div class="sidebar-label">ACCURST PLAYLIST</div>
+      <input type="text" class="music-input" id="musicUrl" placeholder="Paste YouTube/SoundCloud link">
+      <button class="music-go" onclick="loadMusic()">► PLAY</button>
+      <div class="music-hint">Works with YouTube or SoundCloud links. Press play inside the player once it loads. If a video shows "unavailable," that creator has disabled embedding — try a different link.</div>
+      <div class="music-embed-wrap" id="musicEmbedWrap"></div>
+      <button class="music-clear" id="musicClearBtn" style="display:none;" onclick="clearMusic()">stop &amp; clear</button>
+    </div>
+  </aside>
+
+  <main>
+
+    <header class="titleblock">
+      <h1 class="logo">GALDERA</h1>
+      <div class="subtitle">reviews from the accurst flame</div>
+    </header>
+
+    <section id="view-home">
+      <h2 class="section-title" id="shelfTitle">CARTRIDGE LIBRARY</h2>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-cat="All" onclick="setFilter('All')">ALL</button>
+        <button class="filter-tab" data-cat="Games" onclick="setFilter('Games')">🎮 GAMES</button>
+        <button class="filter-tab" data-cat="Music" onclick="setFilter('Music')">🎵 MUSIC</button>
+        <button class="filter-tab" data-cat="Books" onclick="setFilter('Books')">📖 BOOKS</button>
+      </div>
+      <div id="shelf" class="shelf">
+        <div class="loading-row">LOADING SAVE DATA...</div>
+      </div>
+    </section>
+
+    <section id="view-post" style="display:none;"></section>
+
+    <section id="view-verses" style="display:none;">
+      <h2 class="section-title">SCRIPTURE</h2>
+      <div class="verses-grid" id="versesGrid"></div>
+    </section>
+
+    <section id="view-about" style="display:none;">
+      <h2 class="section-title">ABOUT ME</h2>
+      <div class="about-card">
+        <div class="about-name">GALDERA</div>
+        <div class="about-tagline">24 · Greece · born under a February sky</div>
+
+        <div class="about-section">
+          <div class="about-section-label">WHO I AM</div>
+          <div class="about-text">
+            My name is Galdera and I'm 24, from Greece. I hold a pregraduate degree in German Language and Literature, and a Master's in Logistics and Supply Chain Management. I'm a nerd and an otaku at heart, with a deep love for geography, history, and foreign languages. I'm also an Orthodox Christian.
+          </div>
+        </div>
+
+        <div class="about-section">
+          <div class="about-section-label">LANGUAGES I SPEAK</div>
+          <div class="about-langs">
+            <span class="about-tag">Greek</span>
+            <span class="about-tag">Ancient Greek</span>
+            <span class="about-tag">English</span>
+            <span class="about-tag">German</span>
+            <span class="about-tag">Spanish</span>
+            <span class="about-tag">Japanese</span>
+            <span class="about-tag">Boarisch</span>
+          </div>
+        </div>
+
+        <div class="about-section">
+          <div class="about-section-label">ANIME I LOVE</div>
+          <ul class="about-anime-list">
+            <li>Pokémon</li>
+            <li>Re:Zero − Starting Life in Another World</li>
+            <li>Konosuba</li>
+            <li>Chainsaw Man</li>
+            <li>Bleach</li>
+            <li>Dragon Ball</li>
+            <li>Gintama</li>
+            <li>The Rising of the Shield Hero</li>
+            <li>My Hero Academia</li>
+            <li>Jujutsu Kaisen</li>
+            <li>Attack on Titan</li>
+            <li>Soul Eater</li>
+            <li>Code Geass</li>
+            <li>Akira</li>
+            <li>Assassination Classroom</li>
+            <li>Demon Slayer</li>
+            <li>To Your Eternity</li>
+            <li>Kekkaishi</li>
+          </ul>
+        </div>
+
+        <div class="about-section">
+          <div class="about-section-label">THINGS I LOVE</div>
+          <div class="about-likes">
+            <span class="about-like-chip">⛵ the sea</span>
+            <span class="about-like-chip">🎵 music</span>
+            <span class="about-like-chip">🎬 movies</span>
+            <span class="about-like-chip">☕ a good cup of coffee</span>
+            <span class="about-like-chip">📖 a good book</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-new" style="display:none;">
+      <h2 class="section-title">INSERT NEW CARTRIDGE</h2>
+      <div class="form-wrap">
+        <div class="draft-banner" id="draftBanner" style="display:none;">
+          📝 Draft restored from your last session.
+          <button class="draft-discard" onclick="discardDraft()">discard draft</button>
+        </div>
+
+        <label for="f-category">CATEGORY</label>
+        <select id="f-category" onchange="updateFormForCategory()">
+          <option value="Games">🎮 Games</option>
+          <option value="Music">🎵 Music</option>
+          <option value="Books">📖 Books</option>
+        </select>
+
+        <label for="f-game" id="f-game-label">GAME TITLE</label>
+        <input type="text" id="f-game" placeholder="e.g. Hollow Knight">
+
+        <label for="f-title">POST TITLE</label>
+        <input type="text" id="f-title" placeholder="e.g. This game broke me (in a good way)">
+
+        <label for="f-type">POST TYPE</label>
+        <select id="f-type">
+          <option value="Review">Review</option>
+          <option value="Opinion">Opinion</option>
+          <option value="Update">Update / Blog</option>
+          <option value="Misc">Misc</option>
+        </select>
+
+        <label>SCORE (out of 5)</label>
+        <div class="score-picker" id="score-picker">
+          <button type="button" data-v="1">🔥</button>
+          <button type="button" data-v="2">🔥</button>
+          <button type="button" data-v="3">🔥</button>
+          <button type="button" data-v="4">🔥</button>
+          <button type="button" data-v="5">🔥</button>
+        </div>
+        <div class="form-hint">Click a flame to set your score. Click it again to clear.</div>
+
+        <label for="f-content">YOUR THOUGHTS</label>
+        <textarea id="f-content" placeholder="Write your review, rant, or update here..."></textarea>
+
+        <button class="submit-btn" onclick="submitPost()">► PUBLISH</button>
+        <div class="status-msg" id="form-status"></div>
+        <div class="autosave-indicator" id="autosaveIndicator"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer>
+  <div class="footer-pixel">PRESS START</div>
+  <div class="footer-verse verse-rotator" id="verseRotator" tabindex="0" role="button" aria-label="Click to see another Bible verse" onclick="nextVerse()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();nextVerse();}">
+    <span id="verseText">☦ "The Lord is near to all who call on him, to all who call on him in truth."</span>
+    <cite id="verseCite">— Psalm 145:18</cite>
+  </div>
+  <div class="verse-hint">click the verse for another</div>
+</footer>
+
+<div id="gateOverlay" class="gate-overlay" style="display:none;">
+  <div class="gate-box">
+    <div class="gate-title">🔒 OWNER ACCESS REQUIRED</div>
+    <input type="password" id="gateInput" placeholder="Enter passphrase">
+    <div class="gate-error" id="gateError"></div>
+    <div class="gate-actions">
+      <button class="gate-confirm" onclick="confirmGate()">UNLOCK</button>
+      <button class="gate-cancel" onclick="closeGate()">CANCEL</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---------- passphrase gate ----------
+// The real passphrase is NOT stored here. Only its SHA-256 hash is.
+// Searching this file's source will not reveal the actual passphrase.
+const OWNER_PASSPHRASE_HASH = "4e8986e025ae8ff70421d5b97d53428395882fc0c0706e4c55af30002a39078a";
+
+async function sha256(message){
+  const data = new TextEncoder().encode(message);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+let pendingAction = null;
+let unlockedThisSession = false;
+
+function requireAuth(action){
+  if(unlockedThisSession){
+    action();
+    return;
+  }
+  pendingAction = action;
+  document.getElementById('gateInput').value = '';
+  document.getElementById('gateError').textContent = '';
+  document.getElementById('gateOverlay').style.display = 'flex';
+  setTimeout(()=> document.getElementById('gateInput').focus(), 50);
+}
+
+function closeGate(){
+  document.getElementById('gateOverlay').style.display = 'none';
+  pendingAction = null;
+}
+
+async function confirmGate(){
+  const val = document.getElementById('gateInput').value;
+  const valHash = await sha256(val);
+  if(valHash === OWNER_PASSPHRASE_HASH){
+    unlockedThisSession = true;
+    document.getElementById('gateOverlay').style.display = 'none';
+    const action = pendingAction;
+    pendingAction = null;
+    if(action) action();
+  }else{
+    document.getElementById('gateError').textContent = 'WRONG PASSPHRASE';
+  }
+}
+
+document.getElementById('gateInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') confirmGate();
+  if(e.key === 'Escape') closeGate();
+});
+
+let posts = [];
+let currentScore = 0;
+let viewingId = null;
+let currentFilter = 'All';
+
+// ---------- ember particles ----------
+function spawnEmbers(){
+  const layer = document.getElementById('emberLayer');
+  const count = 18;
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'ember-spark';
+    const left = Math.random()*100;
+    const dur = 6 + Math.random()*8;
+    const delay = Math.random()*10;
+    const drift = (Math.random()*40 - 20) + 'px';
+    s.style.left = left + 'vw';
+    s.style.animationDuration = dur + 's';
+    s.style.animationDelay = delay + 's';
+    s.style.setProperty('--drift', drift);
+    layer.appendChild(s);
+  }
+}
+
+function spawnStars(){
+  const layer = document.getElementById('starLayer');
+  if(layer.childElementCount > 0) return;
+  const count = 40;
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'star-twinkle';
+    const size = 1 + Math.random()*2.5;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random()*100 + 'vw';
+    s.style.top = Math.random()*100 + 'vh';
+    s.style.animationDuration = (2 + Math.random()*4) + 's';
+    s.style.animationDelay = (Math.random()*4) + 's';
+    layer.appendChild(s);
+  }
+}
+
+// ---------- clock ----------
+function tickClock(){
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  const ss = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('clockTime').textContent = `${hh}:${mm}:${ss}`;
+  const days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  document.getElementById('clockDate').textContent =
+    `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+}
+
+function highlightMiniCal(){
+  const grid = document.getElementById('miniCalGrid');
+  if(!grid) return;
+  const cells = grid.querySelectorAll('span');
+  cells.forEach(c => c.classList.remove('today'));
+  const dayOfWeek = new Date().getDay();
+  const cell = cells[dayOfWeek % cells.length];
+  if(cell) cell.classList.add('today');
+}
+
+// ---------- bible verse rotator ----------
+const VERSES = [
+  { text: 'The Lord is near to all who call on him, to all who call on him in truth.', ref: 'Psalm 145:18' },
+  { text: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.', ref: 'Jeremiah 29:11' },
+  { text: 'I can do all things through him who strengthens me.', ref: 'Philippians 4:13' },
+  { text: 'The Lord is my shepherd; I shall not want.', ref: 'Psalm 23:1' },
+  { text: 'Trust in the Lord with all your heart, and do not lean on your own understanding.', ref: 'Proverbs 3:5' },
+  { text: 'Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.', ref: 'Joshua 1:9' },
+  { text: 'For God so loved the world, that he gave his only Son, that whoever believes in him should not perish but have eternal life.', ref: 'John 3:16' },
+  { text: 'And we know that for those who love God all things work together for good, for those who are called according to his purpose.', ref: 'Romans 8:28' },
+  { text: 'Cast all your anxiety on him because he cares for you.', ref: '1 Peter 5:7' },
+  { text: 'The Lord is my light and my salvation; whom shall I fear?', ref: 'Psalm 27:1' },
+  { text: 'Come to me, all who labor and are heavy laden, and I will give you rest.', ref: 'Matthew 11:28' },
+  { text: 'Do not be anxious about anything, but in everything by prayer and supplication with thanksgiving let your requests be made known to God.', ref: 'Philippians 4:6' },
+  { text: 'He heals the brokenhearted and binds up their wounds.', ref: 'Psalm 147:3' },
+  { text: 'But those who hope in the Lord will renew their strength. They will soar on wings like eagles.', ref: 'Isaiah 40:31' },
+  { text: 'This is the day that the Lord has made; let us rejoice and be glad in it.', ref: 'Psalm 118:24' },
+  { text: 'Let all that you do be done in love.', ref: '1 Corinthians 16:14' },
+  { text: 'The Lord himself goes before you and will be with you; he will never leave you nor forsake you.', ref: 'Deuteronomy 31:8' },
+  { text: 'Delight yourself in the Lord, and he will give you the desires of your heart.', ref: 'Psalm 37:4' },
+  { text: 'Above all else, guard your heart, for everything you do flows from it.', ref: 'Proverbs 4:23' },
+  { text: 'For we walk by faith, not by sight.', ref: '2 Corinthians 5:7' },
+  { text: 'Peace I leave with you; my peace I give to you. Let not your hearts be troubled, neither let them be afraid.', ref: 'John 14:27' }
+];
+
+let currentVerseIndex = 0;
+
+function nextVerse(){
+  const el = document.getElementById('verseRotator');
+  el.classList.add('fading');
+  setTimeout(()=>{
+    let next;
+    do{
+      next = Math.floor(Math.random() * VERSES.length);
+    }while(next === currentVerseIndex && VERSES.length > 1);
+    currentVerseIndex = next;
+    const v = VERSES[currentVerseIndex];
+    document.getElementById('verseText').textContent = `☦ "${v.text}"`;
+    document.getElementById('verseCite').textContent = `— ${v.ref}`;
+    el.classList.remove('fading');
+  }, 200);
+}
+
+// ---------- music ----------
+function extractYouTubeId(url){
+  const patterns = [
+    /youtu\.be\/([a-zA-Z0-9_-]{6,})/,
+    /youtube\.com\/watch\?v=([a-zA-Z0-9_-]{6,})/,
+    /youtube\.com\/embed\/([a-zA-Z0-9_-]{6,})/,
+    /youtube\.com\/shorts\/([a-zA-Z0-9_-]{6,})/
+  ];
+  for(const p of patterns){
+    const m = url.match(p);
+    if(m) return m[1];
+  }
+  return null;
+}
+
+function loadMusic(){
+  const raw = document.getElementById('musicUrl').value.trim();
+  const wrap = document.getElementById('musicEmbedWrap');
+  const clearBtn = document.getElementById('musicClearBtn');
+  if(!raw){ return; }
+
+  if(raw.includes('soundcloud.com')){
+    const embedSrc = `https://w.soundcloud.com/player/?url=${encodeURIComponent(raw)}&color=%23e8581c&show_artwork=true`;
+    wrap.innerHTML = `<iframe width="100%" height="120" scrolling="no" frameborder="no" allow="autoplay" src="${embedSrc}"></iframe>`;
+    clearBtn.style.display = 'block';
+    return;
+  }
+
+  const ytId = extractYouTubeId(raw);
+  if(ytId){
+    wrap.innerHTML = `<iframe width="100%" height="160" src="https://www.youtube.com/embed/${ytId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    clearBtn.style.display = 'block';
+    return;
+  }
+
+  wrap.innerHTML = `<div style="color:var(--ember-bright); font-size:14px; margin-top:8px;">Couldn't read that link — paste a YouTube or SoundCloud URL.</div>`;
+}
+
+function clearMusic(){
+  document.getElementById('musicEmbedWrap').innerHTML = '';
+  document.getElementById('musicUrl').value = '';
+  document.getElementById('musicClearBtn').style.display = 'none';
+}
+
+// ---------- storage ----------
+async function loadPosts(){
+  try{
+    const result = await window.storage.get('galdera:posts', false);
+    posts = result ? JSON.parse(result.value) : [];
+  }catch(e){
+    posts = [];
+  }
+  renderShelf();
+}
+
+async function savePosts(){
+  try{
+    await window.storage.set('galdera:posts', JSON.stringify(posts), false);
+  }catch(e){
+    console.error('Save failed', e);
+  }
+}
+
+// ---------- draft autosave ----------
+async function loadDraft(){
+  try{
+    const result = await window.storage.get('galdera:draft', false);
+    return result ? JSON.parse(result.value) : null;
+  }catch(e){
+    return null;
+  }
+}
+
+async function saveDraftNow(){
+  const draft = {
+    category: document.getElementById('f-category').value,
+    game: document.getElementById('f-game').value,
+    title: document.getElementById('f-title').value,
+    type: document.getElementById('f-type').value,
+    content: document.getElementById('f-content').value,
+    score: currentScore
+  };
+  // Don't save an entirely empty draft
+  if(!draft.game && !draft.title && !draft.content){
+    return;
+  }
+  try{
+    await window.storage.set('galdera:draft', JSON.stringify(draft), false);
+    flashAutosaveIndicator();
+  }catch(e){
+    console.error('Draft save failed', e);
+  }
+}
+
+async function clearDraftStorage(){
+  try{
+    await window.storage.delete('galdera:draft', false);
+  }catch(e){
+    // key may already be gone, ignore
+  }
+}
+
+function discardDraft(){
+  clearDraftStorage();
+  document.getElementById('draftBanner').style.display = 'none';
+  document.getElementById('f-game').value='';
+  document.getElementById('f-title').value='';
+  document.getElementById('f-content').value='';
+  document.getElementById('f-type').value='Review';
+  document.getElementById('f-category').value='Games';
+  currentScore = 0;
+  updateFormForCategory();
+  updateScorePicker();
+}
+
+let autosaveTimer = null;
+function scheduleAutosave(){
+  if(autosaveTimer) clearTimeout(autosaveTimer);
+  autosaveTimer = setTimeout(saveDraftNow, 800);
+}
+
+function flashAutosaveIndicator(){
+  const el = document.getElementById('autosaveIndicator');
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0');
+  const mm = String(now.getMinutes()).padStart(2,'0');
+  el.textContent = `💾 Draft saved at ${hh}:${mm}`;
+  el.classList.add('visible');
+  clearTimeout(flashAutosaveIndicator._t);
+  flashAutosaveIndicator._t = setTimeout(()=> el.classList.remove('visible'), 2500);
+}
+
+['f-game','f-title','f-content'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', scheduleAutosave);
+});
+['f-category','f-type'].forEach(id=>{
+  document.getElementById(id).addEventListener('change', scheduleAutosave);
+});
+
+// ---------- category filter ----------
+const SHELF_TITLES = {
+  All: 'CARTRIDGE LIBRARY',
+  Games: 'GAME SHELF',
+  Music: 'SOUND ARCHIVE',
+  Books: 'READING LIST'
+};
+
+function setFilter(cat){
+  currentFilter = cat;
+  document.querySelectorAll('.filter-tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.cat === cat);
+  });
+  document.getElementById('shelfTitle').textContent = SHELF_TITLES[cat] || 'CARTRIDGE LIBRARY';
+  renderShelf();
+}
+
+const CATEGORY_LABELS = {
+  Games: { label:'GAME TITLE', placeholder:'e.g. Hollow Knight' },
+  Music: { label:'ALBUM / ARTIST', placeholder:'e.g. Currents — Tame Impala' },
+  Books: { label:'BOOK TITLE', placeholder:'e.g. Project Hail Mary' }
+};
+
+function updateFormForCategory(){
+  const cat = document.getElementById('f-category').value;
+  const cfg = CATEGORY_LABELS[cat];
+  document.getElementById('f-game-label').textContent = cfg.label;
+  document.getElementById('f-game').placeholder = cfg.placeholder;
+}
+
+// ---------- navigation ----------
+function showView(name){
+  document.getElementById('view-home').style.display = name==='home' ? '' : 'none';
+  document.getElementById('view-new').style.display = name==='new' ? '' : 'none';
+  document.getElementById('view-post').style.display = name==='post' ? '' : 'none';
+  document.getElementById('view-verses').style.display = name==='verses' ? '' : 'none';
+  document.getElementById('view-about').style.display = name==='about' ? '' : 'none';
+  document.getElementById('nav-home').classList.toggle('active', name==='home');
+  document.getElementById('nav-new').classList.toggle('active', name==='new');
+  document.getElementById('nav-verses').classList.toggle('active', name==='verses');
+  document.getElementById('nav-about').classList.toggle('active', name==='about');
+  document.body.classList.toggle('sanctuary-mode', name==='verses');
+  document.body.classList.toggle('ocean-mode', name==='about');
+  if(name==='new'){
+    resetForm();
+  }
+  if(name==='verses'){
+    renderVersesGrid();
+  }
+  if(name==='about'){
+    spawnStars();
+  }
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function renderVersesGrid(){
+  const grid = document.getElementById('versesGrid');
+  grid.innerHTML = VERSES.map(v => `
+    <div class="verse-card">
+      <div class="verse-card-text">☦ "${escapeHTML(v.text)}"</div>
+      <div class="verse-card-ref">${escapeHTML(v.ref)}</div>
+    </div>
+  `).join('');
+}
+
+async function resetForm(){
+  document.getElementById('form-status').textContent='';
+  document.getElementById('draftBanner').style.display = 'none';
+
+  const draft = await loadDraft();
+  if(draft){
+    document.getElementById('f-game').value = draft.game || '';
+    document.getElementById('f-title').value = draft.title || '';
+    document.getElementById('f-content').value = draft.content || '';
+    document.getElementById('f-type').value = draft.type || 'Review';
+    document.getElementById('f-category').value = draft.category || 'Games';
+    currentScore = draft.score || 0;
+    document.getElementById('draftBanner').style.display = 'flex';
+  }else{
+    document.getElementById('f-game').value='';
+    document.getElementById('f-title').value='';
+    document.getElementById('f-content').value='';
+    document.getElementById('f-type').value='Review';
+    document.getElementById('f-category').value='Games';
+    currentScore = 0;
+  }
+  updateFormForCategory();
+  updateScorePicker();
+}
+
+// ---------- score picker ----------
+document.getElementById('score-picker').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const v = parseInt(btn.dataset.v);
+  currentScore = (currentScore === v) ? 0 : v;
+  updateScorePicker();
+  scheduleAutosave();
+});
+function updateScorePicker(){
+  document.querySelectorAll('#score-picker button').forEach(b=>{
+    b.classList.toggle('active', parseInt(b.dataset.v) <= currentScore);
+  });
+}
+
+// ---------- render ----------
+function flamesHTML(score){
+  let h = '';
+  for(let i=1;i<=5;i++){
+    h += `<span class="flame ${i<=score?'filled':''}">🔥</span>`;
+  }
+  return h;
+}
+
+function escapeHTML(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+const CATEGORY_ICONS = { Games:'🎮', Music:'🎵', Books:'📖' };
+
+function renderShelf(){
+  const shelf = document.getElementById('shelf');
+  const filtered = currentFilter === 'All' ? posts : posts.filter(p => (p.category || 'Games') === currentFilter);
+
+  if(posts.length === 0){
+    shelf.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <span class="pixel">NO CARTRIDGES FOUND</span>
+        Write your first post to fill the shelf.
+      </div>`;
+    return;
+  }
+  if(filtered.length === 0){
+    shelf.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <span class="pixel">NOTHING HERE YET</span>
+        No ${escapeHTML(currentFilter)} posts on the shelf yet.
+      </div>`;
+    return;
+  }
+  const sorted = [...filtered].sort((a,b)=> b.createdAt - a.createdAt);
+  shelf.innerHTML = sorted.map(p => `
+    <div class="cart" tabindex="0" role="button" onclick="openPost('${p.id}')" onkeydown="if(event.key==='Enter')openPost('${p.id}')">
+      <div class="cart-top"></div>
+      <div class="cart-body">
+        <div class="cart-cat">${CATEGORY_ICONS[p.category] || '🎮'} ${escapeHTML(p.category || 'Games').toUpperCase()}</div>
+        <div class="cart-game">${escapeHTML(p.game || 'UNTITLED')}</div>
+        <h3 class="cart-title">${escapeHTML(p.title)}</h3>
+        <div class="cart-meta">${escapeHTML(p.type)} · ${formatDate(p.createdAt)}</div>
+        <div class="cart-excerpt">${escapeHTML(p.content.slice(0,120))}${p.content.length>120?'…':''}</div>
+        ${p.score>0 ? `<div class="cart-score">${flamesHTML(p.score)}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatDate(ts){
+  const d = new Date(ts);
+  return d.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+}
+
+function openPost(id){
+  const p = posts.find(x=>x.id===id);
+  if(!p) return;
+  viewingId = id;
+  const container = document.getElementById('view-post');
+  container.innerHTML = `
+    <div class="post-view">
+      <div class="cart-top"></div>
+      <div class="post-view-body">
+        <button class="back-btn" onclick="showView('home')">◄ BACK TO LIBRARY</button>
+        <div class="cart-cat">${CATEGORY_ICONS[p.category] || '🎮'} ${escapeHTML(p.category || 'Games').toUpperCase()}</div>
+        <div class="post-view-game">${escapeHTML(p.game || 'UNTITLED')}</div>
+        <h2 class="post-view-title">${escapeHTML(p.title)}</h2>
+        <div class="post-view-meta">${escapeHTML(p.type)} · ${formatDate(p.createdAt)}</div>
+        <div class="post-view-content">${escapeHTML(p.content)}</div>
+        ${p.score>0 ? `<div class="post-view-score">${flamesHTML(p.score)} <span style="color:var(--text-dim); margin-left:6px;">${p.score}/5</span></div>` : ''}
+        <div class="post-actions">
+          <button class="danger-btn" onclick="requireAuth(()=>deletePost('${p.id}'))">DELETE POST</button>
+        </div>
+      </div>
+    </div>
+  `;
+  showView('post');
+}
+
+async function deletePost(id){
+  posts = posts.filter(p=>p.id!==id);
+  await savePosts();
+  renderShelf();
+  showView('home');
+}
+
+// ---------- submit ----------
+async function submitPost(){
+  const category = document.getElementById('f-category').value;
+  const game = document.getElementById('f-game').value.trim();
+  const title = document.getElementById('f-title').value.trim();
+  const type = document.getElementById('f-type').value;
+  const content = document.getElementById('f-content').value.trim();
+  const statusEl = document.getElementById('form-status');
+
+  if(!title || !content){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! TITLE AND THOUGHTS ARE REQUIRED';
+    return;
+  }
+
+  const post = {
+    id: 'p_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    category, game, title, type, content,
+    score: currentScore,
+    createdAt: Date.now()
+  };
+
+  posts.push(post);
+  statusEl.style.color = 'var(--ember-bright)';
+  statusEl.textContent = 'SAVING...';
+
+  try{
+    await savePosts();
+    await clearDraftStorage();
+    statusEl.textContent = '✓ PUBLISHED!';
+    renderShelf();
+    setTimeout(()=>{ showView('home'); }, 500);
+  }catch(e){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! SAVE FAILED, TRY AGAIN';
+  }
+}
+
+// ---------- init ----------
+spawnEmbers();
+tickClock();
+setInterval(tickClock, 1000);
+highlightMiniCal();
+loadPosts();
+</script>
+
+</body>
+</html>
