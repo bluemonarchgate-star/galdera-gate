@@ -372,6 +372,81 @@
     padding:6px 0 0;
   }
   .music-clear:hover{color:var(--ember-bright);}
+  .music-toggle-btn{
+    width:100%;
+    margin-top:8px;
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    background:var(--blood);
+    border:2px solid var(--blood-bright);
+    color:var(--text);
+    padding:9px;
+    cursor:pointer;
+    transition:background .15s, border-color .15s;
+  }
+  .music-toggle-btn:hover{background:var(--blood-bright);}
+  .music-toggle-btn.playing{
+    background:var(--ember);
+    border-color:var(--ember-bright);
+  }
+  .music-toggle-btn.playing:hover{background:var(--ember-bright); color:var(--stone-deep);}
+
+  .weather-block{
+    margin-top:14px;
+    border:2px solid var(--brick-edge);
+    background:rgba(0,0,0,0.3);
+    padding:12px 10px;
+  }
+  .weather-input-wrap{
+    position:relative;
+  }
+  .weather-suggestions{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:var(--stone-deep);
+    border:2px solid var(--ember);
+    border-top:none;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:30;
+    display:none;
+  }
+  .weather-suggestions.visible{display:block;}
+  .weather-suggestion-item{
+    padding:8px 10px;
+    font-size:15px;
+    color:var(--text);
+    cursor:pointer;
+    border-bottom:1px solid var(--brick-edge);
+  }
+  .weather-suggestion-item:last-child{border-bottom:none;}
+  .weather-suggestion-item:hover,
+  .weather-suggestion-item.highlighted{
+    background:var(--brick);
+    color:var(--ember-bright);
+  }
+  .weather-result{
+    margin-top:10px;
+    font-size:15px;
+    color:var(--text);
+    line-height:1.5;
+    min-height:1.4em;
+  }
+  .weather-temp{
+    font-family:'Press Start 2P', monospace;
+    font-size:16px;
+    color:var(--gold);
+    margin-bottom:4px;
+  }
+  .weather-desc{
+    color:var(--text-dim);
+  }
+  .weather-error{
+    color:var(--blood-bright);
+    font-size:14px;
+  }
 
   /* ===== MAIN ===== */
   main{
@@ -539,6 +614,37 @@
     font-size:9px;
     color:var(--ember);
     letter-spacing:0.5px;
+  }
+
+  .lang-toggle{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:18px;
+    max-width:680px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+  .lang-btn{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    color:var(--text-dim);
+    padding:8px 12px;
+    cursor:pointer;
+    transition:border-color .15s, color .15s;
+  }
+  .lang-btn:hover, .lang-btn:focus-visible{
+    border-color:var(--ember);
+    color:var(--ember-bright);
+    outline:none;
+  }
+  .lang-btn.active{
+    border-color:var(--gold);
+    color:var(--gold);
+    background:#1a0d0a;
   }
 
   .about-card{
@@ -1011,9 +1117,19 @@
       <div class="sidebar-label">ACCURST PLAYLIST</div>
       <input type="text" class="music-input" id="musicUrl" placeholder="Paste YouTube/SoundCloud link">
       <button class="music-go" onclick="loadMusic()">► PLAY</button>
-      <div class="music-hint">Works with YouTube or SoundCloud links. Press play inside the player once it loads. If a video shows "unavailable," that creator has disabled embedding — try a different link.</div>
+      <div class="music-hint">Works with YouTube or SoundCloud links. If a video shows "unavailable," that creator has disabled embedding — try a different link.</div>
       <div class="music-embed-wrap" id="musicEmbedWrap"></div>
       <button class="music-clear" id="musicClearBtn" style="display:none;" onclick="clearMusic()">stop &amp; clear</button>
+    </div>
+
+    <div class="weather-block">
+      <div class="sidebar-label">WEATHER CHECK</div>
+      <div class="weather-input-wrap">
+        <input type="text" class="music-input" id="weatherCity" placeholder="Enter a city" autocomplete="off">
+        <div class="weather-suggestions" id="weatherSuggestions"></div>
+      </div>
+      <button class="music-go" onclick="loadWeather()">► CHECK</button>
+      <div id="weatherResult" class="weather-result"></div>
     </div>
   </aside>
 
@@ -1046,32 +1162,41 @@
 
     <section id="view-about" style="display:none;">
       <h2 class="section-title">ABOUT ME</h2>
+
+      <div class="lang-toggle" id="langToggle">
+        <button class="lang-btn active" data-lang="en" onclick="setAboutLang('en')">EN</button>
+        <button class="lang-btn" data-lang="gr" onclick="setAboutLang('gr')">ΕΛ</button>
+        <button class="lang-btn" data-lang="grc" onclick="setAboutLang('grc')">ΑΡΧ</button>
+        <button class="lang-btn" data-lang="de" onclick="setAboutLang('de')">DE</button>
+        <button class="lang-btn" data-lang="es" onclick="setAboutLang('es')">ES</button>
+        <button class="lang-btn" data-lang="ja" onclick="setAboutLang('ja')">日本語</button>
+        <button class="lang-btn" data-lang="bar" onclick="setAboutLang('bar')">BOA</button>
+      </div>
+
       <div class="about-card">
         <div class="about-name">GALDERA</div>
-        <div class="about-tagline">24 · Greece · born under a February sky</div>
+        <div class="about-tagline" id="aboutTagline">24 · Greece · born under a February sky</div>
 
         <div class="about-section">
-          <div class="about-section-label">WHO I AM</div>
-          <div class="about-text">
-            My name is Galdera and I'm 24, from Greece. I hold a pregraduate degree in German Language and Literature, and a Master's in Logistics and Supply Chain Management. I'm a nerd and an otaku at heart, with a deep love for geography, history, and foreign languages. I'm also an Orthodox Christian.
-          </div>
+          <div class="about-section-label" id="aboutLabelWho">WHO I AM</div>
+          <div class="about-text" id="aboutTextWho"></div>
         </div>
 
         <div class="about-section">
-          <div class="about-section-label">LANGUAGES I SPEAK</div>
+          <div class="about-section-label" id="aboutLabelLangs">LANGUAGES I SPEAK</div>
           <div class="about-langs">
-            <span class="about-tag">Greek</span>
-            <span class="about-tag">Ancient Greek</span>
+            <span class="about-tag">Ελληνικά</span>
+            <span class="about-tag">Ἀρχαία Ἑλληνικά</span>
             <span class="about-tag">English</span>
-            <span class="about-tag">German</span>
-            <span class="about-tag">Spanish</span>
-            <span class="about-tag">Japanese</span>
+            <span class="about-tag">Deutsch</span>
+            <span class="about-tag">Español</span>
+            <span class="about-tag">日本語</span>
             <span class="about-tag">Boarisch</span>
           </div>
         </div>
 
         <div class="about-section">
-          <div class="about-section-label">ANIME I LOVE</div>
+          <div class="about-section-label" id="aboutLabelAnime">ANIME I LOVE</div>
           <ul class="about-anime-list">
             <li>Pokémon</li>
             <li>Re:Zero − Starting Life in Another World</li>
@@ -1095,14 +1220,8 @@
         </div>
 
         <div class="about-section">
-          <div class="about-section-label">THINGS I LOVE</div>
-          <div class="about-likes">
-            <span class="about-like-chip">⛵ the sea</span>
-            <span class="about-like-chip">🎵 music</span>
-            <span class="about-like-chip">🎬 movies</span>
-            <span class="about-like-chip">☕ a good cup of coffee</span>
-            <span class="about-like-chip">📖 a good book</span>
-          </div>
+          <div class="about-section-label" id="aboutLabelLikes">THINGS I LOVE</div>
+          <div class="about-likes" id="aboutLikes"></div>
         </div>
       </div>
     </section>
@@ -1176,6 +1295,7 @@
       <button class="gate-confirm" onclick="confirmGate()">UNLOCK</button>
       <button class="gate-cancel" onclick="closeGate()">CANCEL</button>
     </div>
+    <button class="music-clear" style="margin-top:14px;" onclick="resetGithubToken()">reset stored GitHub token</button>
   </div>
 </div>
 
@@ -1383,22 +1503,296 @@ function clearMusic(){
   document.getElementById('musicClearBtn').style.display = 'none';
 }
 
-// ---------- storage ----------
+// ---------- weather ----------
+let weatherSuggestionResults = [];
+let weatherSuggestionHighlight = -1;
+let weatherSuggestTimer = null;
+
+function weatherCodeToText(code){
+  const map = {
+    0: 'Clear sky', 1: 'Mostly clear', 2: 'Partly cloudy', 3: 'Overcast',
+    45: 'Fog', 48: 'Depositing rime fog',
+    51: 'Light drizzle', 53: 'Drizzle', 55: 'Dense drizzle',
+    61: 'Slight rain', 63: 'Rain', 65: 'Heavy rain',
+    71: 'Slight snow', 73: 'Snow', 75: 'Heavy snow',
+    80: 'Rain showers', 81: 'Rain showers', 82: 'Violent rain showers',
+    95: 'Thunderstorm', 96: 'Thunderstorm with hail', 99: 'Thunderstorm with heavy hail'
+  };
+  return map[code] || 'Unknown conditions';
+}
+
+async function fetchWeatherFor(place){
+  const resultEl = document.getElementById('weatherResult');
+  resultEl.innerHTML = `<div class="weather-desc">Loading...</div>`;
+  try{
+    const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,weather_code,wind_speed_10m`);
+    const wData = await wRes.json();
+
+    if(!wData.current){
+      resultEl.innerHTML = `<div class="weather-error">Weather data unavailable right now.</div>`;
+      return;
+    }
+
+    const temp = Math.round(wData.current.temperature_2m);
+    const wind = Math.round(wData.current.wind_speed_10m);
+    const desc = weatherCodeToText(wData.current.weather_code);
+    const placeName = [place.name, place.admin1, place.country].filter(Boolean).join(', ');
+
+    resultEl.innerHTML = `
+      <div class="weather-temp">${temp}°C</div>
+      <div class="weather-desc">${escapeHTML(desc)} · wind ${wind} km/h</div>
+      <div class="weather-desc" style="margin-top:4px; font-size:13px;">${escapeHTML(placeName)}</div>
+    `;
+  }catch(e){
+    resultEl.innerHTML = `<div class="weather-error">Couldn't reach the weather service. Try again.</div>`;
+  }
+}
+
+async function loadWeather(){
+  const city = document.getElementById('weatherCity').value.trim();
+  const resultEl = document.getElementById('weatherResult');
+  if(!city){ return; }
+
+  hideWeatherSuggestions();
+  resultEl.innerHTML = `<div class="weather-desc">Looking up "${escapeHTML(city)}"...</div>`;
+
+  try{
+    const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=en&format=json`);
+    const geoData = await geoRes.json();
+
+    if(!geoData.results || geoData.results.length === 0){
+      resultEl.innerHTML = `<div class="weather-error">Couldn't find that city. Try a different spelling.</div>`;
+      return;
+    }
+
+    await fetchWeatherFor(geoData.results[0]);
+  }catch(e){
+    resultEl.innerHTML = `<div class="weather-error">Couldn't reach the weather service. Try again.</div>`;
+  }
+}
+
+function hideWeatherSuggestions(){
+  const box = document.getElementById('weatherSuggestions');
+  box.classList.remove('visible');
+  box.innerHTML = '';
+  weatherSuggestionResults = [];
+  weatherSuggestionHighlight = -1;
+}
+
+function renderWeatherSuggestions(){
+  const box = document.getElementById('weatherSuggestions');
+  if(weatherSuggestionResults.length === 0){
+    hideWeatherSuggestions();
+    return;
+  }
+  box.innerHTML = weatherSuggestionResults.map((place, i) => {
+    const label = [place.name, place.admin1, place.country].filter(Boolean).join(', ');
+    return `<div class="weather-suggestion-item ${i===weatherSuggestionHighlight?'highlighted':''}" data-i="${i}">${escapeHTML(label)}</div>`;
+  }).join('');
+  box.classList.add('visible');
+}
+
+async function handleWeatherCityInput(){
+  const input = document.getElementById('weatherCity');
+  const query = input.value.trim();
+
+  if(weatherSuggestTimer) clearTimeout(weatherSuggestTimer);
+
+  if(query.length < 2){
+    hideWeatherSuggestions();
+    return;
+  }
+
+  weatherSuggestTimer = setTimeout(async ()=>{
+    try{
+      const geoRes = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=6&language=en&format=json`);
+      const geoData = await geoRes.json();
+      weatherSuggestionResults = geoData.results || [];
+      weatherSuggestionHighlight = -1;
+      renderWeatherSuggestions();
+    }catch(e){
+      hideWeatherSuggestions();
+    }
+  }, 300);
+}
+
+function selectWeatherSuggestion(i){
+  const place = weatherSuggestionResults[i];
+  if(!place) return;
+  document.getElementById('weatherCity').value = [place.name, place.country].filter(Boolean).join(', ');
+  hideWeatherSuggestions();
+  fetchWeatherFor(place);
+}
+
+document.getElementById('weatherCity').addEventListener('input', handleWeatherCityInput);
+
+document.getElementById('weatherCity').addEventListener('keydown', (e)=>{
+  if(weatherSuggestionResults.length === 0) return;
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    weatherSuggestionHighlight = Math.min(weatherSuggestionHighlight + 1, weatherSuggestionResults.length - 1);
+    renderWeatherSuggestions();
+  }else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    weatherSuggestionHighlight = Math.max(weatherSuggestionHighlight - 1, 0);
+    renderWeatherSuggestions();
+  }else if(e.key === 'Enter'){
+    if(weatherSuggestionHighlight >= 0){
+      e.preventDefault();
+      selectWeatherSuggestion(weatherSuggestionHighlight);
+    }
+  }else if(e.key === 'Escape'){
+    hideWeatherSuggestions();
+  }
+});
+
+document.getElementById('weatherSuggestions').addEventListener('click', (e)=>{
+  const item = e.target.closest('.weather-suggestion-item');
+  if(!item) return;
+  selectWeatherSuggestion(parseInt(item.dataset.i));
+});
+
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.weather-input-wrap')){
+    hideWeatherSuggestions();
+  }
+});
+
+// ---------- shared storage via GitHub ----------
+// This makes posts genuinely public: everyone who visits this page reads
+// the SAME posts.json file from your GitHub repo. Publishing/deleting
+// writes back to that file using a personal access token.
+//
+// IMPORTANT: the token is NOT stored in this file. It lives only in your
+// own browser's local storage, entered once via a prompt. This means the
+// token never gets committed to GitHub and GitHub's secret scanner will
+// never flag this file.
+
+const GITHUB_OWNER = "bluemonarchgate-star";
+const GITHUB_REPO = "galdera-gate";
+const GITHUB_FILE_PATH = "posts.json";
+const TOKEN_STORAGE_KEY = "galdera_github_token";
+
+let postsFileSha = null; // tracks the current version of posts.json on GitHub
+
+function getStoredToken(){
+  try{
+    return localStorage.getItem(TOKEN_STORAGE_KEY) || null;
+  }catch(e){
+    return null;
+  }
+}
+
+function setStoredToken(token){
+  try{
+    localStorage.setItem(TOKEN_STORAGE_KEY, token);
+  }catch(e){
+    console.error('Could not store token', e);
+  }
+}
+
+function clearStoredToken(){
+  try{
+    localStorage.removeItem(TOKEN_STORAGE_KEY);
+  }catch(e){ /* ignore */ }
+}
+
+function resetGithubToken(){
+  clearStoredToken();
+  alert("Stored GitHub token cleared. You'll be asked for it again next time you publish or delete a post.");
+}
+
+function requireGithubToken(){
+  let token = getStoredToken();
+  if(!token){
+    token = window.prompt(
+      "Enter your GitHub personal access token to publish or delete posts.\n\n" +
+      "This is stored only in this browser (not in the website file) and is " +
+      "used to save posts to your GitHub repo."
+    );
+    if(token){
+      token = token.trim();
+      setStoredToken(token);
+    }
+  }
+  return token;
+}
+
 async function loadPosts(){
   try{
-    const result = await window.storage.get('galdera:posts', false);
-    posts = result ? JSON.parse(result.value) : [];
+    // Raw URL = fast public read, no auth needed, always gets latest committed content.
+    const raw = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${GITHUB_FILE_PATH}?_=${Date.now()}`
+    );
+    if(raw.ok){
+      posts = await raw.json();
+    }else{
+      posts = [];
+    }
   }catch(e){
     posts = [];
   }
   renderShelf();
 }
 
+async function fetchPostsFileSha(token){
+  // The GitHub Contents API requires the file's current SHA to update it safely.
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if(res.ok){
+    const data = await res.json();
+    return data.sha;
+  }
+  return null; // file doesn't exist yet, that's fine for first publish
+}
+
 async function savePosts(){
+  const token = requireGithubToken();
+  if(!token){
+    throw new Error("No GitHub token provided");
+  }
+
   try{
-    await window.storage.set('galdera:posts', JSON.stringify(posts), false);
+    postsFileSha = await fetchPostsFileSha(token);
+
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(posts, null, 2))));
+
+    const body = {
+      message: `Update posts.json via Galdera site (${new Date().toISOString()})`,
+      content: content,
+      branch: "main"
+    };
+    if(postsFileSha){
+      body.sha = postsFileSha;
+    }
+
+    const res = await fetch(
+      `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
+      {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
+      }
+    );
+
+    if(!res.ok){
+      const errText = await res.text();
+      console.error("GitHub save failed:", res.status, errText);
+      if(res.status === 401){
+        // Bad/expired token — clear it so the next attempt re-prompts.
+        clearStoredToken();
+        throw new Error("GitHub token was rejected. Please try again with a valid token.");
+      }
+      throw new Error("GitHub save failed");
+    }
   }catch(e){
     console.error('Save failed', e);
+    throw e;
   }
 }
 
@@ -1508,6 +1902,90 @@ function updateFormForCategory(){
   document.getElementById('f-game').placeholder = cfg.placeholder;
 }
 
+// ---------- about me translations ----------
+const ABOUT_TRANSLATIONS = {
+  en: {
+    tagline: "24 · Greece · born under a February sky",
+    labelWho: "WHO I AM",
+    who: "My name is Galdera and I'm 24, from Greece. I hold a pregraduate degree in German Language and Literature, and a Master's in Logistics and Supply Chain Management. I'm a nerd and an otaku at heart, with a deep love for geography, history, and foreign languages. I'm also an Orthodox Christian.",
+    labelLangs: "LANGUAGES I SPEAK",
+    labelAnime: "ANIME I LOVE",
+    labelLikes: "THINGS I LOVE",
+    likes: ["⛵ the sea", "🎵 music", "🎬 movies", "☕ a good cup of coffee", "📖 a good book"]
+  },
+  gr: {
+    tagline: "24 · Ελλάδα · γεννημένος έναν Φεβρουάριο",
+    labelWho: "ΠΟΙΟΣ ΕΙΜΑΙ",
+    who: "Με λένε Γκαλντέρα και είμαι 24 χρονών, από την Ελλάδα. Έχω πτυχίο στη Γερμανική Γλώσσα και Φιλολογία, καθώς και Μεταπτυχιακό στη Διοίκηση Εφοδιαστικής Αλυσίδας (Logistics). Είμαι nerd και otaku στην ψυχή, με βαθιά αγάπη για τη γεωγραφία, την ιστορία και τις ξένες γλώσσες. Είμαι επίσης Ορθόδοξος Χριστιανός.",
+    labelLangs: "ΓΛΩΣΣΕΣ ΠΟΥ ΜΙΛΑΩ",
+    labelAnime: "ANIME ΠΟΥ ΑΓΑΠΩ",
+    labelLikes: "ΠΡΑΓΜΑΤΑ ΠΟΥ ΑΓΑΠΩ",
+    likes: ["⛵ τη θάλασσα", "🎵 τη μουσική", "🎬 τις ταινίες", "☕ έναν καλό καφέ", "📖 ένα καλό βιβλίο"]
+  },
+  grc: {
+    tagline: "κδ' ἔτη · Ἑλλάς · γεννηθεὶς Φεβρουαρίῳ μηνί",
+    labelWho: "ΤΙΣ ΕΙΜΙ",
+    who: "Ὄνομά μοί ἐστι Γαλδέρα, καὶ εἰμὶ εἴκοσι καὶ τεσσάρων ἐτῶν, ἐξ Ἑλλάδος. Ἔχω δίπλωμα τῆς Γερμανικῆς γλώσσης καὶ γραμμάτων, καὶ μετεκπαίδευσιν περὶ τῆς διοικήσεως τῶν μεταφορῶν. Φιλομαθὴς εἰμὶ τῇ ψυχῇ, ἀγαπῶν τὴν γεωγραφίαν, τὴν ἱστορίαν καὶ τὰς ξένας γλώσσας. Χριστιανὸς δέ εἰμι τῆς Ὀρθοδόξου πίστεως.",
+    labelLangs: "ΓΛΩΣΣΑΙ ΑΣ ΛΑΛΩ",
+    labelAnime: "ἃ ἀγαπῶ ἐκ τῶν ΙΑΠΩΝΙΚΩΝ ΕΙΚΟΝΟΓΡΑΦΗΜΑΤΩΝ",
+    labelLikes: "ἃ ΑΓΑΠΩ",
+    likes: ["⛵ τὴν θάλασσαν", "🎵 τὴν μουσικήν", "🎬 τὰ θεάματα", "☕ καλὸν κάφε", "📖 καλὸν βιβλίον"]
+  },
+  de: {
+    tagline: "24 · Griechenland · geboren im Februar",
+    labelWho: "WER ICH BIN",
+    who: "Ich heiße Galdera und bin 24 Jahre alt, aus Griechenland. Ich habe einen Bachelor in Deutscher Sprache und Literatur sowie einen Master in Logistik und Supply Chain Management. Ich bin im Herzen ein Nerd und Otaku, mit einer tiefen Liebe für Geografie, Geschichte und Fremdsprachen. Außerdem bin ich orthodoxer Christ.",
+    labelLangs: "SPRACHEN, DIE ICH SPRECHE",
+    labelAnime: "ANIME, DIE ICH LIEBE",
+    labelLikes: "DINGE, DIE ICH LIEBE",
+    likes: ["⛵ das Meer", "🎵 Musik", "🎬 Filme", "☕ eine gute Tasse Kaffee", "📖 ein gutes Buch"]
+  },
+  es: {
+    tagline: "24 · Grecia · nacido en febrero",
+    labelWho: "QUIÉN SOY",
+    who: "Me llamo Galdera y tengo 24 años, soy de Grecia. Tengo una licenciatura en Lengua y Literatura Alemanas, y un Máster en Logística y Gestión de la Cadena de Suministro. Soy nerd y otaku de corazón, con un profundo amor por la geografía, la historia y los idiomas extranjeros. También soy cristiano ortodoxo.",
+    labelLangs: "IDIOMAS QUE HABLO",
+    labelAnime: "ANIME QUE ME ENCANTA",
+    labelLikes: "COSAS QUE ME ENCANTAN",
+    likes: ["⛵ el mar", "🎵 la música", "🎬 las películas", "☕ una buena taza de café", "📖 un buen libro"]
+  },
+  ja: {
+    tagline: "24歳 · ギリシャ出身 · 2月生まれ",
+    labelWho: "自己紹介",
+    who: "ガルデラと申します。24歳、ギリシャ出身です。ドイツ語学・文学の学士号と、ロジスティクス・サプライチェーンマネジメントの修士号を持っています。根っからのオタクでナードで、地理・歴史・外国語が大好きです。正教会のクリスチャンでもあります。",
+    labelLangs: "話せる言語",
+    labelAnime: "好きなアニメ",
+    labelLikes: "好きなもの",
+    likes: ["⛵ 海", "🎵 音楽", "🎬 映画", "☕ 美味しいコーヒー", "📖 良い本"]
+  },
+  bar: {
+    tagline: "24 · Griachnland · im Februar gebor'n",
+    labelWho: "WER I BIN",
+    who: "I hoaß Galdera und bin 24 Joahr alt, aus Griachnland. I hob a Bachelor in Deitscher Sproch und Literatur, und a Master in Logistik und Supply Chain Management gmacht. I bin im Herzn a Nerd und Otaku, mit ana großn Liab fia Geografie, Gschicht und fremde Sprochn. I bin a a orthodoxer Christ.",
+    labelLangs: "SPROCHN WOS I RED",
+    labelAnime: "ANIME WOS I MAG",
+    labelLikes: "SACHAN WOS I MAG",
+    likes: ["⛵ s' Meer", "🎵 Musi", "🎬 Filme", "☕ a guade Tassn Kaffee", "📖 a guads Buach"]
+  }
+};
+
+function setAboutLang(lang){
+  const t = ABOUT_TRANSLATIONS[lang];
+  if(!t) return;
+
+  document.getElementById('aboutTagline').textContent = t.tagline;
+  document.getElementById('aboutLabelWho').textContent = t.labelWho;
+  document.getElementById('aboutTextWho').textContent = t.who;
+  document.getElementById('aboutLabelLangs').textContent = t.labelLangs;
+  document.getElementById('aboutLabelAnime').textContent = t.labelAnime;
+  document.getElementById('aboutLabelLikes').textContent = t.labelLikes;
+  document.getElementById('aboutLikes').innerHTML = t.likes.map(l => `<span class="about-like-chip">${escapeHTML(l)}</span>`).join('');
+
+  document.querySelectorAll('.lang-btn').forEach(b=>{
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+}
+
 // ---------- navigation ----------
 function showView(name){
   document.getElementById('view-home').style.display = name==='home' ? '' : 'none';
@@ -1529,6 +2007,7 @@ function showView(name){
   }
   if(name==='about'){
     spawnStars();
+    setAboutLang('en');
   }
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -1667,10 +2146,17 @@ function openPost(id){
 }
 
 async function deletePost(id){
+  const backup = [...posts];
   posts = posts.filter(p=>p.id!==id);
-  await savePosts();
-  renderShelf();
-  showView('home');
+  try{
+    await savePosts();
+    renderShelf();
+    showView('home');
+  }catch(e){
+    posts = backup; // revert local state since the remote delete failed
+    renderShelf();
+    alert('Could not delete the post — check your connection or GitHub token and try again.');
+  }
 }
 
 // ---------- submit ----------
