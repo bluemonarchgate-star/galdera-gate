@@ -74,6 +74,26 @@
     display:none;
   }
 
+  body.finis-mode{
+    --ember:#9b7fd4;
+    --ember-bright:#c9b6ff;
+    --brick:#1c1a26;
+    --brick-edge:#3a3450;
+    --stone-deep:#08070d;
+    --text:#e6e0f5;
+    --text-dim:#857c9e;
+    --gold:#b89eff;
+    --blood:#241f33;
+    --blood-bright:#4a3d6b;
+    background:radial-gradient(ellipse at 50% 15%, #241f38 0%, #120f1c 45%, #060509 100%);
+    background-image:none;
+    color:#e6e0f5;
+  }
+  body.finis-mode .ember-layer,
+  body.finis-mode .star-layer{
+    display:none;
+  }
+
   .pixel{font-family:'Press Start 2P', monospace;}
 
   /* Ember particle layer - signature element, replaces CRT scanlines */
@@ -123,9 +143,37 @@
     0%, 100%{opacity:0.15; transform:scale(0.8);}
     50%{opacity:1; transform:scale(1.2);}
   }
+
+  /* Floating spark layer - shown only in finis-mode, drifting rather than rising or twinkling */
+  .finis-layer{
+    pointer-events:none;
+    position:fixed;
+    inset:0;
+    z-index:5;
+    overflow:hidden;
+    display:none;
+  }
+  body.finis-mode .finis-layer{ display:block; }
+  .finis-spark{
+    position:absolute;
+    border-radius:50%;
+    background:#c9b6ff;
+    box-shadow:0 0 8px 2px rgba(155,127,212,0.8);
+    opacity:0;
+    animation:finis-float ease-in-out infinite;
+  }
+  @keyframes finis-float{
+    0%{opacity:0; transform:translate(0,0);}
+    10%{opacity:0.9;}
+    50%{transform:translate(var(--drift-x, 24px), var(--drift-y, -30px));}
+    90%{opacity:0.6;}
+    100%{opacity:0; transform:translate(var(--drift-x2, -18px), var(--drift-y2, -60px));}
+  }
+
   @media (prefers-reduced-motion: reduce){
     .ember-spark{animation:none; display:none;}
     .star-twinkle{animation:none; opacity:0.6;}
+    .finis-spark{animation:none; opacity:0.5;}
     *{transition:none !important;}
   }
 
@@ -725,6 +773,95 @@
     padding:6px 14px;
   }
 
+  .daily-composer{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .daily-composer label{
+    display:block;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin:14px 0 8px;
+  }
+  .daily-composer label:first-child{margin-top:0;}
+  .daily-composer input[type=file]{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:16px;
+    padding:10px;
+  }
+  .daily-composer textarea{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:18px;
+    padding:10px 12px;
+    resize:vertical;
+    outline:none;
+  }
+  .daily-composer textarea:focus{border-color:var(--ember);}
+  .daily-photo-preview{
+    margin-top:10px;
+    max-width:100%;
+    max-height:240px;
+    border:2px solid var(--brick-edge);
+    display:block;
+  }
+
+  .daily-feed{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:20px;
+  }
+  .daily-card{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:5px 5px 0 var(--stone-deep);
+    overflow:hidden;
+    transition:background-color .5s, border-color .5s;
+  }
+  .daily-card img{
+    width:100%;
+    display:block;
+    max-height:320px;
+    object-fit:cover;
+  }
+  .daily-card-body{
+    padding:14px 16px;
+  }
+  .daily-card-caption{
+    font-size:17px;
+    line-height:1.4;
+    color:var(--text);
+    white-space:pre-wrap;
+  }
+  .daily-card-meta{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--text-dim);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .daily-card-delete{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:13px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+  .daily-card-delete:hover{color:#ff6b6b;}
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -1076,6 +1213,7 @@
 
 <div class="ember-layer" id="emberLayer"></div>
 <div class="star-layer" id="starLayer"></div>
+<div class="finis-layer" id="finisLayer"></div>
 
 <div class="shell">
 
@@ -1109,6 +1247,7 @@
         <button class="side-btn active" id="nav-home" onclick="showView('home')">HOME</button>
         <button class="side-btn" id="nav-verses" onclick="showView('verses')">☦ VERSES</button>
         <button class="side-btn" id="nav-about" onclick="showView('about')">⛵ ABOUT ME</button>
+        <button class="side-btn" id="nav-daily" onclick="showView('daily')">✦ DAILY LIFE</button>
         <button class="side-btn" id="nav-new" onclick="requireAuth(()=>showView('new'))">+ NEW POST</button>
       </div>
     </div>
@@ -1223,6 +1362,28 @@
           <div class="about-section-label" id="aboutLabelLikes">THINGS I LOVE</div>
           <div class="about-likes" id="aboutLikes"></div>
         </div>
+      </div>
+    </section>
+
+    <section id="view-daily" style="display:none;">
+      <h2 class="section-title">DAILY LIFE</h2>
+
+      <div class="daily-composer" id="dailyComposer" style="display:none;">
+        <label for="daily-photo">PHOTO</label>
+        <input type="file" id="daily-photo" accept="image/*">
+        <div id="dailyPhotoPreviewWrap"></div>
+
+        <label for="daily-caption">CAPTION</label>
+        <textarea id="daily-caption" placeholder="What's happening..." rows="3"></textarea>
+
+        <button class="submit-btn" onclick="submitDailyPost()" style="margin-top:14px;">► POST</button>
+        <div class="status-msg" id="daily-status"></div>
+      </div>
+
+      <button class="side-btn" id="dailyComposerToggle" onclick="requireAuth(()=>toggleDailyComposer())" style="margin-bottom:20px;">+ NEW DAILY LIFE POST</button>
+
+      <div id="dailyFeed" class="daily-feed">
+        <div class="loading-row">LOADING...</div>
       </div>
     </section>
 
@@ -1389,6 +1550,28 @@ function spawnStars(){
     s.style.top = Math.random()*100 + 'vh';
     s.style.animationDuration = (2 + Math.random()*4) + 's';
     s.style.animationDelay = (Math.random()*4) + 's';
+    layer.appendChild(s);
+  }
+}
+
+function spawnFinisSparks(){
+  const layer = document.getElementById('finisLayer');
+  if(layer.childElementCount > 0) return;
+  const count = 26;
+  for(let i=0;i<count;i++){
+    const s = document.createElement('div');
+    s.className = 'finis-spark';
+    const size = 2 + Math.random()*3;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random()*100 + 'vw';
+    s.style.top = Math.random()*100 + 'vh';
+    s.style.animationDuration = (5 + Math.random()*6) + 's';
+    s.style.animationDelay = (Math.random()*6) + 's';
+    s.style.setProperty('--drift-x', (Math.random()*50 - 25) + 'px');
+    s.style.setProperty('--drift-y', (-20 - Math.random()*40) + 'px');
+    s.style.setProperty('--drift-x2', (Math.random()*60 - 30) + 'px');
+    s.style.setProperty('--drift-y2', (-50 - Math.random()*60) + 'px');
     layer.appendChild(s);
   }
 }
@@ -1796,6 +1979,216 @@ async function savePosts(){
   }
 }
 
+// ---------- generic GitHub file helpers (used by daily life posts + photos) ----------
+async function githubGetFileSha(path, token){
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  if(res.ok){
+    const data = await res.json();
+    return data.sha;
+  }
+  return null;
+}
+
+async function githubPutFile(path, base64Content, message, token){
+  const sha = await githubGetFileSha(path, token);
+  const body = { message, content: base64Content, branch: "main" };
+  if(sha) body.sha = sha;
+
+  const res = await fetch(
+    `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${path}`,
+    {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(body)
+    }
+  );
+
+  if(!res.ok){
+    const errText = await res.text();
+    console.error("GitHub file save failed:", res.status, errText);
+    if(res.status === 401){
+      clearStoredToken();
+      throw new Error("GitHub token was rejected. Please try again with a valid token.");
+    }
+    throw new Error("GitHub file save failed");
+  }
+  return res.json();
+}
+
+async function githubFetchJSON(path){
+  try{
+    const raw = await fetch(
+      `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${path}?_=${Date.now()}`
+    );
+    if(raw.ok){
+      return await raw.json();
+    }
+  }catch(e){ /* fall through */ }
+  return [];
+}
+
+// ---------- daily life posts ----------
+const DAILY_FILE_PATH = "daily.json";
+let dailyPosts = [];
+let dailyPhotoBase64 = null; // currently-selected photo, base64-encoded, awaiting upload
+let dailyPhotoFilename = null;
+
+async function loadDailyPosts(){
+  dailyPosts = await githubFetchJSON(DAILY_FILE_PATH);
+  renderDailyFeed();
+}
+
+async function saveDailyPosts(){
+  const token = requireGithubToken();
+  if(!token){
+    throw new Error("No GitHub token provided");
+  }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(dailyPosts, null, 2))));
+  await githubPutFile(DAILY_FILE_PATH, content, `Update daily.json via Galdera site (${new Date().toISOString()})`, token);
+}
+
+function toggleDailyComposer(){
+  const box = document.getElementById('dailyComposer');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    document.getElementById('daily-caption').value = '';
+    document.getElementById('daily-photo').value = '';
+    document.getElementById('dailyPhotoPreviewWrap').innerHTML = '';
+    document.getElementById('daily-status').textContent = '';
+    dailyPhotoBase64 = null;
+    dailyPhotoFilename = null;
+  }
+}
+
+document.getElementById('daily-photo').addEventListener('change', (e)=>{
+  const file = e.target.files[0];
+  const previewWrap = document.getElementById('dailyPhotoPreviewWrap');
+  if(!file){
+    previewWrap.innerHTML = '';
+    dailyPhotoBase64 = null;
+    dailyPhotoFilename = null;
+    return;
+  }
+  if(!file.type.startsWith('image/')){
+    previewWrap.innerHTML = `<div class="weather-error">Please choose an image file.</div>`;
+    dailyPhotoBase64 = null;
+    return;
+  }
+  if(file.size > 4.5 * 1024 * 1024){
+    previewWrap.innerHTML = `<div class="weather-error">That image is too large (max ~4.5MB). Try a smaller photo.</div>`;
+    dailyPhotoBase64 = null;
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (ev)=>{
+    const dataUrl = ev.target.result; // e.g. "data:image/png;base64,XXXX"
+    const base64 = dataUrl.split(',')[1];
+    dailyPhotoBase64 = base64;
+    const ext = (file.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g, '') || 'jpg';
+    dailyPhotoFilename = `daily-photos/${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+    previewWrap.innerHTML = `<img class="daily-photo-preview" src="${dataUrl}" alt="Preview">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+async function submitDailyPost(){
+  const caption = document.getElementById('daily-caption').value.trim();
+  const statusEl = document.getElementById('daily-status');
+
+  if(!dailyPhotoBase64 && !caption){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! ADD A PHOTO OR A CAPTION';
+    return;
+  }
+
+  const token = requireGithubToken();
+  if(!token){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! GITHUB TOKEN REQUIRED TO POST';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ember-bright)';
+  statusEl.textContent = 'UPLOADING...';
+
+  try{
+    let photoPath = null;
+    if(dailyPhotoBase64){
+      await githubPutFile(dailyPhotoFilename, dailyPhotoBase64, `Add daily life photo (${new Date().toISOString()})`, token);
+      photoPath = dailyPhotoFilename;
+    }
+
+    const entry = {
+      id: 'd_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      photoPath,
+      caption,
+      createdAt: Date.now()
+    };
+
+    dailyPosts.push(entry);
+    statusEl.textContent = 'SAVING POST...';
+    await saveDailyPosts();
+
+    statusEl.textContent = '✓ POSTED!';
+    renderDailyFeed();
+    setTimeout(()=>{ toggleDailyComposer(); }, 500);
+  }catch(e){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! POST FAILED, TRY AGAIN';
+  }
+}
+
+async function deleteDailyPost(id){
+  const backup = [...dailyPosts];
+  dailyPosts = dailyPosts.filter(p=>p.id!==id);
+  try{
+    await saveDailyPosts();
+    renderDailyFeed();
+  }catch(e){
+    dailyPosts = backup;
+    renderDailyFeed();
+    alert('Could not delete the post — check your connection or GitHub token and try again.');
+  }
+}
+
+function renderDailyFeed(){
+  const feed = document.getElementById('dailyFeed');
+  if(dailyPosts.length === 0){
+    feed.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <span class="pixel">NOTHING POSTED YET</span>
+        Share a photo and caption to get started.
+      </div>`;
+    return;
+  }
+  const sorted = [...dailyPosts].sort((a,b)=> b.createdAt - a.createdAt);
+  feed.innerHTML = sorted.map(p => {
+    const imgSrc = p.photoPath
+      ? `https://raw.githubusercontent.com/${GITHUB_OWNER}/${GITHUB_REPO}/main/${p.photoPath}`
+      : null;
+    return `
+      <div class="daily-card">
+        ${imgSrc ? `<img src="${imgSrc}" alt="Daily life photo" loading="lazy">` : ''}
+        <div class="daily-card-body">
+          ${p.caption ? `<div class="daily-card-caption">${escapeHTML(p.caption)}</div>` : ''}
+          <div class="daily-card-meta">
+            <span>${formatDate(p.createdAt)}</span>
+            <button class="daily-card-delete" onclick="requireAuth(()=>deleteDailyPost('${p.id}'))">delete</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 // ---------- draft autosave ----------
 async function loadDraft(){
   try{
@@ -1993,12 +2386,15 @@ function showView(name){
   document.getElementById('view-post').style.display = name==='post' ? '' : 'none';
   document.getElementById('view-verses').style.display = name==='verses' ? '' : 'none';
   document.getElementById('view-about').style.display = name==='about' ? '' : 'none';
+  document.getElementById('view-daily').style.display = name==='daily' ? '' : 'none';
   document.getElementById('nav-home').classList.toggle('active', name==='home');
   document.getElementById('nav-new').classList.toggle('active', name==='new');
   document.getElementById('nav-verses').classList.toggle('active', name==='verses');
   document.getElementById('nav-about').classList.toggle('active', name==='about');
+  document.getElementById('nav-daily').classList.toggle('active', name==='daily');
   document.body.classList.toggle('sanctuary-mode', name==='verses');
   document.body.classList.toggle('ocean-mode', name==='about');
+  document.body.classList.toggle('finis-mode', name==='daily');
   if(name==='new'){
     resetForm();
   }
@@ -2008,6 +2404,10 @@ function showView(name){
   if(name==='about'){
     spawnStars();
     setAboutLang('en');
+  }
+  if(name==='daily'){
+    spawnFinisSparks();
+    renderDailyFeed();
   }
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2203,6 +2603,7 @@ tickClock();
 setInterval(tickClock, 1000);
 highlightMiniCal();
 loadPosts();
+loadDailyPosts();
 </script>
 
 </body>
