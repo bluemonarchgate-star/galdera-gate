@@ -128,6 +128,33 @@
     box-shadow:5px 5px 0 rgba(120,100,60,0.25) !important;
   }
 
+  body.analytics-mode{
+    --ember:#5eb8c4;
+    --ember-bright:#9fe3ec;
+    --brick:#142840;
+    --brick-edge:#2a4a6e;
+    --stone-deep:#070f1c;
+    --text:#dceaf2;
+    --text-dim:#7a98ad;
+    --gold:#c9a8f0;
+    --blood:#2e1f52;
+    --blood-bright:#5a3f8f;
+    background:radial-gradient(ellipse at 50% 10%, #1c3a5c 0%, #0e2138 50%, #050b14 100%);
+    background-image:none;
+    color:#dceaf2;
+  }
+  body.analytics-mode .ember-layer,
+  body.analytics-mode .finis-layer{
+    display:none;
+  }
+  body.analytics-mode .star-layer{
+    display:block;
+  }
+  body.analytics-mode .star-twinkle{
+    background:#9fe3ec;
+    box-shadow:0 0 6px 2px rgba(94,184,196,0.9);
+  }
+
   .pixel{font-family:'Press Start 2P', monospace;}
 
   /* Ember particle layer - signature element, replaces CRT scanlines */
@@ -1077,6 +1104,60 @@
   }
   .travel-card-delete:hover{color:#a8503d;}
 
+  .analytics-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(200px, 1fr));
+    gap:18px;
+  }
+  .analytics-card{
+    background:rgba(20,40,64,0.6);
+    border:2px solid var(--brick-edge);
+    padding:20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .analytics-card::before{
+    content:'';
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 0%, rgba(159,227,236,0.12), transparent 70%);
+    pointer-events:none;
+  }
+  .analytics-icon{
+    font-size:26px;
+    margin-bottom:10px;
+  }
+  .analytics-value{
+    font-family:'Press Start 2P', monospace;
+    font-size:22px;
+    color:var(--ember-bright);
+    text-shadow:0 0 10px rgba(94,184,196,0.6);
+  }
+  .analytics-label{
+    margin-top:8px;
+    font-size:14px;
+    color:var(--text-dim);
+    letter-spacing:0.5px;
+  }
+  .analytics-card.wide{
+    grid-column:1 / -1;
+    text-align:left;
+  }
+  .analytics-breakdown{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+  }
+  .analytics-chip{
+    background:rgba(94,184,196,0.12);
+    border:1px solid var(--brick-edge);
+    padding:6px 14px;
+    font-size:15px;
+    color:var(--text);
+  }
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -1458,6 +1539,7 @@
         <button class="side-btn" id="nav-about" onclick="showView('about')">⛵ ABOUT ME</button>
         <button class="side-btn" id="nav-daily" onclick="showView('daily')">✦ DAILY LIFE</button>
         <button class="side-btn" id="nav-travel" onclick="showView('travel')">⚓ TRAVEL MAP</button>
+        <button class="side-btn" id="nav-analytics" onclick="showView('analytics')">⏳ ANALYTICS</button>
         <button class="side-btn" id="nav-new" onclick="requireAuth(()=>showView('new'))">+ NEW POST</button>
       </div>
     </div>
@@ -1644,10 +1726,13 @@
         <div id="travelLeafletMap" class="travel-leaflet-map"></div>
         <div class="travel-map-hint">Click any country to mark it visited. Click again to remove it.</div>
       </div>
+    </section>
 
-      <h3 class="section-title" style="margin-top:30px;">PORTS VISITED</h3>
-      <div id="travelList" class="travel-list">
-        <div class="loading-row">LOADING...</div>
+    <section id="view-analytics" style="display:none;">
+      <h2 class="section-title">RIFT OF RECORDS</h2>
+
+      <div class="analytics-grid" id="analyticsGrid">
+        <div class="loading-row">READING THE TIMESTREAM...</div>
       </div>
     </section>
 
@@ -2539,7 +2624,6 @@ let pendingMapCountryName = null; // set when a country is clicked, used by the 
 
 async function loadTravelData(){
   visitedCountries = await githubFetchJSON(TRAVEL_FILE_PATH);
-  renderTravelList();
   if(travelGeoJsonLayer){
     refreshMapColors();
   }
@@ -2603,7 +2687,6 @@ async function submitTravelCountry(){
   try{
     await saveTravelData();
     statusEl.textContent = '✓ ADDED TO THE CHART!';
-    renderTravelList();
     refreshMapColors();
     setTimeout(()=>{ toggleTravelComposer(); }, 500);
   }catch(e){
@@ -2618,11 +2701,9 @@ async function deleteTravelCountry(id){
   visitedCountries = visitedCountries.filter(c => c.id !== id);
   try{
     await saveTravelData();
-    renderTravelList();
     refreshMapColors();
   }catch(e){
     visitedCountries = backup;
-    renderTravelList();
     refreshMapColors();
     alert('Could not remove that entry — check your connection or GitHub token and try again.');
   }
@@ -2649,7 +2730,6 @@ async function toggleCountryFromMap(countryName){
     });
     try{
       await saveTravelData();
-      renderTravelList();
       refreshMapColors();
     }catch(e){
       visitedCountries = visitedCountries.filter(c => c.country.toLowerCase() !== countryName.toLowerCase());
@@ -2657,6 +2737,66 @@ async function toggleCountryFromMap(countryName){
     }
   }
   if(travelLeafletMap){ travelLeafletMap.closePopup(); }
+}
+
+// ---------- analytics ----------
+function renderAnalytics(){
+  const grid = document.getElementById('analyticsGrid');
+  if(!grid) return;
+
+  const totalPosts = posts.length;
+  const gamesCount = posts.filter(p => (p.category || 'Games') === 'Games').length;
+  const musicCount = posts.filter(p => p.category === 'Music').length;
+  const booksCount = posts.filter(p => p.category === 'Books').length;
+  const totalDaily = dailyPosts.length;
+  const totalVerses = customVerses.length;
+  const totalCountries = visitedCountries.length;
+  const visitorCountEl = document.getElementById('visitorCount');
+  const visitorDisplay = visitorCountEl ? visitorCountEl.textContent : '—';
+
+  const oldestPost = posts.length > 0 ? Math.min(...posts.map(p => p.createdAt)) : null;
+  const daysSinceFirst = oldestPost ? Math.floor((Date.now() - oldestPost) / 86400000) : 0;
+
+  grid.innerHTML = `
+    <div class="analytics-card">
+      <div class="analytics-icon">📜</div>
+      <div class="analytics-value">${totalPosts}</div>
+      <div class="analytics-label">TOTAL REVIEWS</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">📷</div>
+      <div class="analytics-value">${totalDaily}</div>
+      <div class="analytics-label">DAILY LIFE POSTS</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">☦</div>
+      <div class="analytics-value">${totalVerses}</div>
+      <div class="analytics-label">VERSES ADDED</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">⚓</div>
+      <div class="analytics-value">${totalCountries}</div>
+      <div class="analytics-label">COUNTRIES CHARTED</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">👁</div>
+      <div class="analytics-value">${visitorDisplay}</div>
+      <div class="analytics-label">VISITORS</div>
+    </div>
+    <div class="analytics-card">
+      <div class="analytics-icon">⏳</div>
+      <div class="analytics-value">${daysSinceFirst}</div>
+      <div class="analytics-label">DAYS SINCE FIRST ENTRY</div>
+    </div>
+    <div class="analytics-card wide">
+      <div class="analytics-label" style="margin-bottom:4px;">REVIEWS BY CATEGORY</div>
+      <div class="analytics-breakdown">
+        <span class="analytics-chip">🎮 Games: ${gamesCount}</span>
+        <span class="analytics-chip">🎵 Music: ${musicCount}</span>
+        <span class="analytics-chip">📖 Books: ${booksCount}</span>
+      </div>
+    </div>
+  `;
 }
 
 // ---------- Leaflet map setup ----------
@@ -2733,30 +2873,6 @@ function openTravelPopupForCountry(layer, name){
     </div>
   `;
   layer.bindPopup(popupHtml).openPopup();
-}
-
-function renderTravelList(){
-  const list = document.getElementById('travelList');
-  if(!list) return;
-  if(visitedCountries.length === 0){
-    list.innerHTML = `
-      <div class="empty-state" style="grid-column:1/-1;">
-        <span class="pixel">NO PORTS LOGGED YET</span>
-        Click a country on the map to start charting your travels.
-      </div>`;
-    return;
-  }
-  const sorted = [...visitedCountries].sort((a,b)=> b.createdAt - a.createdAt);
-  list.innerHTML = sorted.map(c => `
-    <div class="travel-card">
-      <div class="travel-card-country">⚓ ${escapeHTML(c.country)}</div>
-      ${c.note ? `<div class="travel-card-note">${escapeHTML(c.note)}</div>` : ''}
-      <div class="travel-card-meta-row">
-        <span>${formatDate(c.createdAt)}</span>
-        <button class="travel-card-delete" onclick="requireAuth(()=>deleteTravelCountry('${c.id}'))">remove</button>
-      </div>
-    </div>
-  `).join('');
 }
 
 function toggleDailyComposer(){
@@ -3085,16 +3201,19 @@ function showView(name){
   document.getElementById('view-about').style.display = name==='about' ? '' : 'none';
   document.getElementById('view-daily').style.display = name==='daily' ? '' : 'none';
   document.getElementById('view-travel').style.display = name==='travel' ? '' : 'none';
+  document.getElementById('view-analytics').style.display = name==='analytics' ? '' : 'none';
   document.getElementById('nav-home').classList.toggle('active', name==='home');
   document.getElementById('nav-new').classList.toggle('active', name==='new');
   document.getElementById('nav-verses').classList.toggle('active', name==='verses');
   document.getElementById('nav-about').classList.toggle('active', name==='about');
   document.getElementById('nav-daily').classList.toggle('active', name==='daily');
   document.getElementById('nav-travel').classList.toggle('active', name==='travel');
+  document.getElementById('nav-analytics').classList.toggle('active', name==='analytics');
   document.body.classList.toggle('sanctuary-mode', name==='verses');
   document.body.classList.toggle('ocean-mode', name==='about');
   document.body.classList.toggle('finis-mode', name==='daily');
   document.body.classList.toggle('travel-mode', name==='travel');
+  document.body.classList.toggle('analytics-mode', name==='analytics');
   if(name==='new'){
     resetForm();
   }
@@ -3109,8 +3228,11 @@ function showView(name){
     spawnFinisSparks();
     renderDailyFeed();
   }
+  if(name==='analytics'){
+    spawnStars();
+    renderAnalytics();
+  }
   if(name==='travel'){
-    renderTravelList();
     initTravelLeafletMap().then(()=>{
       if(travelLeafletMap){
         setTimeout(()=>{ travelLeafletMap.invalidateSize(); }, 100);
