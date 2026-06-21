@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>GALDERA</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
@@ -95,6 +96,36 @@
   body.finis-mode .ember-layer,
   body.finis-mode .star-layer{
     display:none;
+  }
+
+  body.travel-mode{
+    --ember:#2e6f6e;
+    --ember-bright:#4fa6a4;
+    --brick:#e8dcc0;
+    --brick-edge:#b9a880;
+    --stone-deep:#cfc09a;
+    --text:#3a2f1e;
+    --text-dim:#6b5c3f;
+    --gold:#9c6b2e;
+    --blood:#7a3b2e;
+    --blood-bright:#a8503d;
+    background:radial-gradient(ellipse at 50% 0%, #ddd0ac 0%, #c9b888 55%, #b3a073 100%);
+    background-image:
+      repeating-linear-gradient(0deg, rgba(120,100,60,0.05) 0px, rgba(120,100,60,0.05) 1px, transparent 1px, transparent 40px),
+      repeating-linear-gradient(90deg, rgba(120,100,60,0.05) 0px, rgba(120,100,60,0.05) 1px, transparent 1px, transparent 40px);
+    color:#3a2f1e;
+  }
+  body.travel-mode .ember-layer,
+  body.travel-mode .star-layer,
+  body.travel-mode .finis-layer{
+    display:none;
+  }
+  body.travel-mode .cart,
+  body.travel-mode .verse-card,
+  body.travel-mode .daily-card,
+  body.travel-mode .form-wrap,
+  body.travel-mode .about-card{
+    box-shadow:5px 5px 0 rgba(120,100,60,0.25) !important;
   }
 
   .pixel{font-family:'Press Start 2P', monospace;}
@@ -909,6 +940,143 @@
   }
   .daily-card-delete:hover{color:#ff6b6b;}
 
+  .travel-composer{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .travel-composer label{
+    display:block;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin:14px 0 8px;
+  }
+  .travel-composer label:first-child{margin-top:0;}
+  .travel-composer input[type=text],
+  .travel-composer textarea{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:18px;
+    padding:10px 12px;
+    outline:none;
+  }
+  .travel-composer input[type=text]:focus,
+  .travel-composer textarea:focus{border-color:var(--ember);}
+  .travel-composer textarea{resize:vertical;}
+  .travel-country-wrap{position:relative;}
+  .travel-suggestions{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:var(--stone-deep);
+    border:2px solid var(--ember);
+    border-top:none;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:30;
+    display:none;
+  }
+  .travel-suggestions.visible{display:block;}
+  .travel-suggestion-item{
+    padding:8px 10px;
+    font-size:15px;
+    color:var(--text);
+    cursor:pointer;
+    border-bottom:1px solid var(--brick-edge);
+  }
+  .travel-suggestion-item:last-child{border-bottom:none;}
+  .travel-suggestion-item:hover,
+  .travel-suggestion-item.highlighted{
+    background:var(--brick);
+    color:var(--ember-bright);
+  }
+
+  .travel-map-wrap{
+    position:relative;
+    background:rgba(255,255,255,0.18);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:20px;
+  }
+  .compass-rose{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:54px;
+    height:54px;
+    color:var(--gold);
+    opacity:0.75;
+    pointer-events:none;
+    z-index:1000;
+  }
+  .travel-leaflet-map{
+    height:420px;
+    width:100%;
+    border:2px solid var(--brick-edge);
+    background:#cfc09a;
+  }
+  .travel-map-hint{
+    margin-top:10px;
+    font-size:14px;
+    color:var(--text-dim);
+    text-align:center;
+  }
+  .leaflet-popup-content-wrapper{
+    background:#e8dcc0;
+    color:#3a2f1e;
+    font-family:'VT323', monospace;
+    font-size:16px;
+    border-radius:0;
+  }
+  .leaflet-popup-tip{ background:#e8dcc0; }
+
+  .travel-list{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
+    gap:14px;
+  }
+  .travel-card{
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    padding:14px 16px;
+  }
+  .travel-card-country{
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--ember);
+    margin-bottom:8px;
+  }
+  .travel-card-note{
+    font-size:16px;
+    color:var(--text);
+    line-height:1.4;
+    white-space:pre-wrap;
+  }
+  .travel-card-meta-row{
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13px;
+    color:var(--text-dim);
+  }
+  .travel-card-delete{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:13px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+  .travel-card-delete:hover{color:#a8503d;}
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -1289,6 +1457,7 @@
         <button class="side-btn" id="nav-verses" onclick="showView('verses')">☦ VERSES</button>
         <button class="side-btn" id="nav-about" onclick="showView('about')">⛵ ABOUT ME</button>
         <button class="side-btn" id="nav-daily" onclick="showView('daily')">✦ DAILY LIFE</button>
+        <button class="side-btn" id="nav-travel" onclick="showView('travel')">⚓ TRAVEL MAP</button>
         <button class="side-btn" id="nav-new" onclick="requireAuth(()=>showView('new'))">+ NEW POST</button>
       </div>
     </div>
@@ -1443,6 +1612,45 @@
       </div>
     </section>
 
+    <section id="view-travel" style="display:none;">
+      <h2 class="section-title">CHARTED WATERS</h2>
+
+      <button class="side-btn" id="travelComposerToggle" onclick="requireAuth(()=>toggleTravelComposer())" style="margin-bottom:20px;">+ ADD A COUNTRY</button>
+
+      <div class="travel-composer" id="travelComposer" style="display:none;">
+        <label for="travel-country-input">COUNTRY</label>
+        <div class="travel-country-wrap">
+          <input type="text" id="travel-country-input" placeholder="Start typing a country..." autocomplete="off">
+          <div class="travel-suggestions" id="travelSuggestions"></div>
+        </div>
+
+        <label for="travel-note-input">NOTE (optional)</label>
+        <textarea id="travel-note-input" rows="2" placeholder="A memory, a date, anything you'd like to remember..."></textarea>
+
+        <button class="submit-btn" onclick="submitTravelCountry()" style="margin-top:14px;">► MARK AS VISITED</button>
+        <div class="status-msg" id="travel-status"></div>
+      </div>
+
+      <div class="travel-map-wrap">
+        <div class="compass-rose" aria-hidden="true">
+          <svg viewBox="0 0 100 100">
+            <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="1"/>
+            <circle cx="50" cy="50" r="2" fill="currentColor"/>
+            <path d="M50 6 L56 50 L50 94 L44 50 Z" fill="currentColor" opacity="0.9"/>
+            <path d="M6 50 L50 44 L94 50 L50 56 Z" fill="currentColor" opacity="0.6"/>
+            <text x="50" y="16" text-anchor="middle" font-size="9" fill="currentColor">N</text>
+          </svg>
+        </div>
+        <div id="travelLeafletMap" class="travel-leaflet-map"></div>
+        <div class="travel-map-hint">Click any country to mark it visited. Click again to remove it.</div>
+      </div>
+
+      <h3 class="section-title" style="margin-top:30px;">PORTS VISITED</h3>
+      <div id="travelList" class="travel-list">
+        <div class="loading-row">LOADING...</div>
+      </div>
+    </section>
+
     <section id="view-new" style="display:none;">
       <h2 class="section-title">INSERT NEW CARTRIDGE</h2>
       <div class="form-wrap">
@@ -1516,6 +1724,7 @@
   </div>
 </div>
 
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
 // ---------- passphrase gate ----------
 // The real passphrase is NOT stored here. Only its SHA-256 hash is.
@@ -2320,6 +2529,236 @@ async function saveDailyPosts(){
   await githubPutFile(DAILY_FILE_PATH, content, `Update daily.json via Galdera site (${new Date().toISOString()})`, token);
 }
 
+// ---------- travel map ----------
+const TRAVEL_FILE_PATH = "travel.json";
+let visitedCountries = [];
+let travelLeafletMap = null;
+let travelGeoJsonLayer = null;
+let countryGeoJsonData = null;
+let pendingMapCountryName = null; // set when a country is clicked, used by the composer
+
+async function loadTravelData(){
+  visitedCountries = await githubFetchJSON(TRAVEL_FILE_PATH);
+  renderTravelList();
+  if(travelGeoJsonLayer){
+    refreshMapColors();
+  }
+}
+
+async function saveTravelData(){
+  const token = requireGithubToken();
+  if(!token){
+    throw new Error("No GitHub token provided");
+  }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(visitedCountries, null, 2))));
+  await githubPutFile(TRAVEL_FILE_PATH, content, `Update travel.json via Galdera site (${new Date().toISOString()})`, token);
+}
+
+function toggleTravelComposer(){
+  const box = document.getElementById('travelComposer');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    document.getElementById('travel-country-input').value = '';
+    document.getElementById('travel-note-input').value = '';
+    document.getElementById('travel-status').textContent = '';
+  }
+}
+
+async function submitTravelCountry(){
+  const country = document.getElementById('travel-country-input').value.trim();
+  const note = document.getElementById('travel-note-input').value.trim();
+  const statusEl = document.getElementById('travel-status');
+
+  if(!country){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! ENTER OR CLICK A COUNTRY ON THE MAP';
+    return;
+  }
+
+  if(visitedCountries.some(c => c.country.toLowerCase() === country.toLowerCase())){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! ALREADY MARKED AS VISITED';
+    return;
+  }
+
+  const token = requireGithubToken();
+  if(!token){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! GITHUB TOKEN REQUIRED';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ember-bright)';
+  statusEl.textContent = 'SAVING...';
+
+  const entry = {
+    id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    country, note,
+    createdAt: Date.now()
+  };
+
+  visitedCountries.push(entry);
+
+  try{
+    await saveTravelData();
+    statusEl.textContent = '✓ ADDED TO THE CHART!';
+    renderTravelList();
+    refreshMapColors();
+    setTimeout(()=>{ toggleTravelComposer(); }, 500);
+  }catch(e){
+    visitedCountries = visitedCountries.filter(c => c.id !== entry.id);
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! SAVE FAILED, TRY AGAIN';
+  }
+}
+
+async function deleteTravelCountry(id){
+  const backup = [...visitedCountries];
+  visitedCountries = visitedCountries.filter(c => c.id !== id);
+  try{
+    await saveTravelData();
+    renderTravelList();
+    refreshMapColors();
+  }catch(e){
+    visitedCountries = backup;
+    renderTravelList();
+    refreshMapColors();
+    alert('Could not remove that entry — check your connection or GitHub token and try again.');
+  }
+}
+
+// Toggle a country directly from a map click (used inside the popup button)
+async function toggleCountryFromMap(countryName){
+  const existing = visitedCountries.find(c => c.country.toLowerCase() === countryName.toLowerCase());
+
+  const token = requireGithubToken();
+  if(!token){
+    alert('A GitHub token is required to mark countries as visited.');
+    return;
+  }
+
+  if(existing){
+    await deleteTravelCountry(existing.id);
+  }else{
+    visitedCountries.push({
+      id: 't_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      country: countryName,
+      note: '',
+      createdAt: Date.now()
+    });
+    try{
+      await saveTravelData();
+      renderTravelList();
+      refreshMapColors();
+    }catch(e){
+      visitedCountries = visitedCountries.filter(c => c.country.toLowerCase() !== countryName.toLowerCase());
+      alert('Could not save — check your connection or GitHub token and try again.');
+    }
+  }
+  if(travelLeafletMap){ travelLeafletMap.closePopup(); }
+}
+
+// ---------- Leaflet map setup ----------
+async function initTravelLeafletMap(){
+  if(travelLeafletMap) return; // already initialized
+
+  const mapEl = document.getElementById('travelLeafletMap');
+  if(!mapEl || typeof L === 'undefined') return;
+
+  travelLeafletMap = L.map('travelLeafletMap', {
+    worldCopyJump: true,
+    minZoom: 1,
+    maxZoom: 6
+  }).setView([20, 10], 2);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_nolabels/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+    maxZoom: 6
+  }).addTo(travelLeafletMap);
+
+  try{
+    if(!countryGeoJsonData){
+      const res = await fetch('https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json');
+      countryGeoJsonData = await res.json();
+    }
+
+    travelGeoJsonLayer = L.geoJSON(countryGeoJsonData, {
+      style: feature => styleForCountry(feature.properties.name),
+      onEachFeature: (feature, layer) => {
+        const name = feature.properties.name;
+        layer.on('click', () => {
+          openTravelPopupForCountry(layer, name);
+        });
+        layer.on('mouseover', () => {
+          layer.setStyle({ weight: 2, fillOpacity: 0.85 });
+        });
+        layer.on('mouseout', () => {
+          travelGeoJsonLayer.resetStyle(layer);
+        });
+      }
+    }).addTo(travelLeafletMap);
+  }catch(e){
+    console.error('Could not load country map data:', e);
+    mapEl.innerHTML = '<div style="padding:20px; text-align:center; color:#5c1a1a;">Could not load the map data. Check your connection and reload.</div>';
+  }
+}
+
+function styleForCountry(name){
+  const isVisited = visitedCountries.some(c => c.country.toLowerCase() === (name || '').toLowerCase());
+  return {
+    color: '#9c6b2e',
+    weight: 1,
+    fillColor: isVisited ? '#2e6f6e' : '#e8dcc0',
+    fillOpacity: isVisited ? 0.85 : 0.5
+  };
+}
+
+function refreshMapColors(){
+  if(!travelGeoJsonLayer) return;
+  travelGeoJsonLayer.eachLayer(layer => {
+    const name = layer.feature.properties.name;
+    layer.setStyle(styleForCountry(name));
+  });
+}
+
+function openTravelPopupForCountry(layer, name){
+  const isVisited = visitedCountries.some(c => c.country.toLowerCase() === name.toLowerCase());
+  const btnLabel = isVisited ? 'Remove from visited' : 'Mark as visited';
+  const safeNameJs = name.replace(/'/g, "\\'");
+  const popupHtml = `
+    <div style="text-align:center; min-width:160px;">
+      <strong>${escapeHTML(name)}</strong><br>
+      <button onclick="requireAuth(()=>toggleCountryFromMap('${safeNameJs}'))" style="margin-top:8px; font-family:'Press Start 2P', monospace; font-size:9px; background:${isVisited ? '#a8503d' : '#2e6f6e'}; color:#fff8e8; border:none; padding:8px 10px; cursor:pointer;">${btnLabel}</button>
+    </div>
+  `;
+  layer.bindPopup(popupHtml).openPopup();
+}
+
+function renderTravelList(){
+  const list = document.getElementById('travelList');
+  if(!list) return;
+  if(visitedCountries.length === 0){
+    list.innerHTML = `
+      <div class="empty-state" style="grid-column:1/-1;">
+        <span class="pixel">NO PORTS LOGGED YET</span>
+        Click a country on the map to start charting your travels.
+      </div>`;
+    return;
+  }
+  const sorted = [...visitedCountries].sort((a,b)=> b.createdAt - a.createdAt);
+  list.innerHTML = sorted.map(c => `
+    <div class="travel-card">
+      <div class="travel-card-country">⚓ ${escapeHTML(c.country)}</div>
+      ${c.note ? `<div class="travel-card-note">${escapeHTML(c.note)}</div>` : ''}
+      <div class="travel-card-meta-row">
+        <span>${formatDate(c.createdAt)}</span>
+        <button class="travel-card-delete" onclick="requireAuth(()=>deleteTravelCountry('${c.id}'))">remove</button>
+      </div>
+    </div>
+  `).join('');
+}
+
 function toggleDailyComposer(){
   const box = document.getElementById('dailyComposer');
   const isOpen = box.style.display !== 'none';
@@ -2645,14 +3084,17 @@ function showView(name){
   document.getElementById('view-verses').style.display = name==='verses' ? '' : 'none';
   document.getElementById('view-about').style.display = name==='about' ? '' : 'none';
   document.getElementById('view-daily').style.display = name==='daily' ? '' : 'none';
+  document.getElementById('view-travel').style.display = name==='travel' ? '' : 'none';
   document.getElementById('nav-home').classList.toggle('active', name==='home');
   document.getElementById('nav-new').classList.toggle('active', name==='new');
   document.getElementById('nav-verses').classList.toggle('active', name==='verses');
   document.getElementById('nav-about').classList.toggle('active', name==='about');
   document.getElementById('nav-daily').classList.toggle('active', name==='daily');
+  document.getElementById('nav-travel').classList.toggle('active', name==='travel');
   document.body.classList.toggle('sanctuary-mode', name==='verses');
   document.body.classList.toggle('ocean-mode', name==='about');
   document.body.classList.toggle('finis-mode', name==='daily');
+  document.body.classList.toggle('travel-mode', name==='travel');
   if(name==='new'){
     resetForm();
   }
@@ -2666,6 +3108,14 @@ function showView(name){
   if(name==='daily'){
     spawnFinisSparks();
     renderDailyFeed();
+  }
+  if(name==='travel'){
+    renderTravelList();
+    initTravelLeafletMap().then(()=>{
+      if(travelLeafletMap){
+        setTimeout(()=>{ travelLeafletMap.invalidateSize(); }, 100);
+      }
+    });
   }
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2853,6 +3303,7 @@ loadAndIncrementVisitorCount();
 loadPosts();
 loadDailyPosts();
 loadCustomVerses();
+loadTravelData();
 </script>
 
 </body>
