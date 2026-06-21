@@ -204,54 +204,6 @@
     top:0;
     height:100vh;
   }
-  .sigil{
-    display:flex;
-    justify-content:center;
-  }
-  .mini-cal{
-    width:38px;
-    height:34px;
-    background:var(--brick);
-    border:2px solid var(--ember);
-    border-radius:3px;
-    position:relative;
-    box-shadow:0 0 10px rgba(232,88,28,0.35);
-  }
-  .mini-cal::before,
-  .mini-cal::after{
-    content:'';
-    position:absolute;
-    top:-6px;
-    width:3px;
-    height:8px;
-    background:var(--gold);
-    border-radius:1px;
-  }
-  .mini-cal::before{ left:7px; }
-  .mini-cal::after{ right:7px; }
-  .mini-cal-header{
-    height:9px;
-    background:var(--ember);
-    border-radius:1px 1px 0 0;
-  }
-  .mini-cal-grid{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:2px;
-    padding:4px;
-  }
-  .mini-cal-grid span{
-    width:100%;
-    aspect-ratio:1;
-    background:var(--text-dim);
-    opacity:0.35;
-    border-radius:1px;
-  }
-  .mini-cal-grid span.today{
-    background:var(--gold);
-    opacity:1;
-    box-shadow:0 0 4px rgba(201,150,58,0.8);
-  }
   .clock-block{
     border:2px solid var(--brick-edge);
     background:rgba(0,0,0,0.3);
@@ -333,38 +285,6 @@
   }
   @media (prefers-reduced-motion: reduce){
     .globe-band{animation:none; transform:translateX(15%) scaleX(1); opacity:0.7;}
-  }
-
-  .moon-wrap{
-    margin-top:14px;
-    padding-top:14px;
-    border-top:1px solid var(--brick-edge);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-  }
-  .moon-icon{
-    width:26px;
-    height:26px;
-    border-radius:50%;
-    background:#2a2438;
-    position:relative;
-    overflow:hidden;
-    flex-shrink:0;
-    box-shadow:0 0 8px rgba(201,150,58,0.25);
-  }
-  .moon-icon .moon-lit{
-    position:absolute;
-    top:0;
-    height:100%;
-    background:var(--gold);
-  }
-  .moon-label{
-    font-size:14px;
-    color:var(--text-dim);
-    line-height:1.3;
-    text-align:left;
   }
 
   .visitor-counter{
@@ -449,10 +369,14 @@
   .music-go:hover{background:var(--blood-bright);}
   .music-embed-wrap{
     margin-top:10px;
+    max-width:100%;
+    overflow:hidden;
   }
   .music-embed-wrap iframe{
     width:100%;
+    max-height:170px;
     border:2px solid var(--brick-edge);
+    display:block;
   }
   .music-hint{
     font-size:13px;
@@ -1319,7 +1243,6 @@
       border-right:none;
       border-bottom:4px solid var(--brick-edge);
     }
-    .sigil{font-size:24px;}
     .clock-block{flex:1; min-width:140px;}
     .sidebar-nav{flex-direction:row; flex:1;}
     .side-btn{flex:1; text-align:center;}
@@ -1341,16 +1264,6 @@
 <div class="shell">
 
   <aside class="sidebar">
-    <div class="sigil">
-      <div class="mini-cal">
-        <div class="mini-cal-header"></div>
-        <div class="mini-cal-grid" id="miniCalGrid">
-          <span></span><span></span><span></span><span></span>
-          <span></span><span></span><span></span><span></span>
-        </div>
-      </div>
-    </div>
-
     <div class="clock-block">
       <div class="clock-time" id="clockTime">00:00:00</div>
       <div class="clock-date" id="clockDate">—</div>
@@ -1361,10 +1274,6 @@
           <div class="globe-band band-3"></div>
           <div class="globe-shine"></div>
         </div>
-      </div>
-      <div class="moon-wrap" id="moonWrap" title="Tonight's moon phase">
-        <div class="moon-icon" id="moonIcon"></div>
-        <div class="moon-label" id="moonLabel">—</div>
       </div>
     </div>
 
@@ -1734,70 +1643,6 @@ function tickClock(){
   const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
   document.getElementById('clockDate').textContent =
     `${days[now.getDay()]} ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
-}
-
-function highlightMiniCal(){
-  const grid = document.getElementById('miniCalGrid');
-  if(!grid) return;
-  const cells = grid.querySelectorAll('span');
-  cells.forEach(c => c.classList.remove('today'));
-  const dayOfWeek = new Date().getDay();
-  const cell = cells[dayOfWeek % cells.length];
-  if(cell) cell.classList.add('today');
-}
-
-// ---------- moon phase ----------
-// Uses a standard astronomical approximation based on the synodic month
-// (~29.53 days). Accurate to within about a day, which is plenty for a
-// decorative sidebar widget.
-function getMoonPhase(date){
-  const synodicMonth = 29.530588853;
-  const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14); // a known new moon reference point
-  const diffDays = (date.getTime() - knownNewMoon) / 86400000;
-  let phase = (diffDays % synodicMonth) / synodicMonth;
-  if(phase < 0) phase += 1;
-  return phase; // 0 = new moon, 0.5 = full moon, 1 = back to new moon
-}
-
-function moonPhaseLabel(phase){
-  if(phase < 0.03 || phase > 0.97) return 'New Moon';
-  if(phase < 0.22) return 'Waxing Crescent';
-  if(phase < 0.28) return 'First Quarter';
-  if(phase < 0.47) return 'Waxing Gibbous';
-  if(phase < 0.53) return 'Full Moon';
-  if(phase < 0.72) return 'Waning Gibbous';
-  if(phase < 0.78) return 'Last Quarter';
-  return 'Waning Crescent';
-}
-
-function renderMoonPhase(){
-  const phase = getMoonPhase(new Date());
-  const label = moonPhaseLabel(phase);
-  document.getElementById('moonLabel').textContent = label;
-
-  // Render the lit portion of the moon icon as a sliding gold panel,
-  // simulating the illuminated fraction without needing image assets.
-  const icon = document.getElementById('moonIcon');
-  icon.innerHTML = '';
-  const lit = document.createElement('div');
-  lit.className = 'moon-lit';
-
-  // illuminated fraction approximation: 0 at new moon, 1 at full moon
-  const illumination = (1 - Math.cos(phase * 2 * Math.PI)) / 2;
-  const widthPct = Math.round(illumination * 100);
-
-  if(phase <= 0.5){
-    // waxing: light grows from the right edge
-    lit.style.right = '0';
-    lit.style.left = 'auto';
-    lit.style.width = widthPct + '%';
-  }else{
-    // waning: light shrinks from the left edge
-    lit.style.left = '0';
-    lit.style.right = 'auto';
-    lit.style.width = widthPct + '%';
-  }
-  icon.appendChild(lit);
 }
 
 // ---------- visitor counter ----------
@@ -3004,8 +2849,6 @@ async function submitPost(){
 spawnEmbers();
 tickClock();
 setInterval(tickClock, 1000);
-highlightMiniCal();
-renderMoonPhase();
 loadAndIncrementVisitorCount();
 loadPosts();
 loadDailyPosts();
