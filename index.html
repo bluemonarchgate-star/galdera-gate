@@ -8,17 +8,17 @@
   @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap');
 
   :root{
-    --stone:#0f0c0b;
-    --stone-deep:#070504;
-    --brick:#2c1310;
-    --brick-edge:#4a1e16;
-    --ember:#e8581c;
-    --ember-bright:#ff8a3d;
-    --gold:#c9963a;
-    --text:#e8ddd0;
-    --text-dim:#9c897a;
-    --blood:#8a1f1f;
-    --blood-bright:#c43a2f;
+    --stone:#1a2438;
+    --stone-deep:#0d1422;
+    --brick:#24304a;
+    --brick-edge:#46638a;
+    --ember:#7fd4e8;
+    --ember-bright:#b8ecf5;
+    --gold:#e8d49a;
+    --text:#eaf2f5;
+    --text-dim:#8fa3b8;
+    --blood:#3a5070;
+    --blood-bright:#5e84a8;
   }
 
   *{box-sizing:border-box;}
@@ -26,10 +26,10 @@
   body{
     background:var(--stone);
     background-image:
-      repeating-linear-gradient(0deg, rgba(0,0,0,0.35) 0px, rgba(0,0,0,0.35) 2px, transparent 2px, transparent 34px),
-      repeating-linear-gradient(90deg, rgba(0,0,0,0.25) 0px, rgba(0,0,0,0.25) 1px, transparent 1px, transparent 68px),
-      radial-gradient(ellipse at 15% 0%, rgba(232,88,28,0.10), transparent 45%),
-      radial-gradient(ellipse at 85% 90%, rgba(138,31,31,0.10), transparent 45%);
+      repeating-linear-gradient(0deg, rgba(255,255,255,0.025) 0px, rgba(255,255,255,0.025) 1px, transparent 1px, transparent 48px),
+      repeating-linear-gradient(90deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 48px),
+      radial-gradient(ellipse at 20% 0%, rgba(127,212,232,0.14), transparent 50%),
+      radial-gradient(ellipse at 85% 95%, rgba(232,212,154,0.10), transparent 50%);
     color:var(--text);
     font-family:'VT323', monospace;
     font-size:20px;
@@ -129,19 +129,19 @@
   }
 
   body.analytics-mode{
-    --ember:#5eb8c4;
-    --ember-bright:#9fe3ec;
-    --brick:#142840;
-    --brick-edge:#2a4a6e;
-    --stone-deep:#070f1c;
-    --text:#dceaf2;
-    --text-dim:#7a98ad;
+    --ember:#4fd1c5;
+    --ember-bright:#8fe9de;
+    --brick:#1a1640;
+    --brick-edge:#3a2e6e;
+    --stone-deep:#0a0820;
+    --text:#dcf0ec;
+    --text-dim:#7a90a8;
     --gold:#c9a8f0;
     --blood:#2e1f52;
     --blood-bright:#5a3f8f;
-    background:radial-gradient(ellipse at 50% 10%, #1c3a5c 0%, #0e2138 50%, #050b14 100%);
+    background:radial-gradient(ellipse at 50% 10%, #241c4c 0%, #140e30 50%, #07051a 100%);
     background-image:none;
-    color:#dceaf2;
+    color:#dcf0ec;
   }
   body.analytics-mode .ember-layer,
   body.analytics-mode .finis-layer{
@@ -151,8 +151,36 @@
     display:block;
   }
   body.analytics-mode .star-twinkle{
-    background:#9fe3ec;
-    box-shadow:0 0 6px 2px rgba(94,184,196,0.9);
+    background:#8fe9de;
+    box-shadow:0 0 6px 2px rgba(79,209,197,0.9);
+  }
+
+  body.library-mode{
+    --ember:#a87a4a;
+    --ember-bright:#d4a76a;
+    --brick:#3a2718;
+    --brick-edge:#5c4128;
+    --stone-deep:#1c130b;
+    --text:#ecdfc8;
+    --text-dim:#a8927a;
+    --gold:#d4a76a;
+    --blood:#5e3018;
+    --blood-bright:#8a4a28;
+    background:radial-gradient(ellipse at 50% 0%, #4a3320 0%, #2e2014 50%, #160e08 100%);
+    background-image:none;
+    color:#ecdfc8;
+  }
+  body.library-mode .ember-layer,
+  body.library-mode .star-layer{
+    display:none;
+  }
+  body.library-mode .finis-layer{
+    display:block;
+  }
+  body.library-mode .finis-spark{
+    background:#d4a76a;
+    box-shadow:0 0 6px 1px rgba(168,122,74,0.7);
+    opacity:0.5;
   }
 
   .pixel{font-family:'Press Start 2P', monospace;}
@@ -1158,6 +1186,153 @@
     color:var(--text);
   }
 
+  .library-composer{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:24px;
+    margin-bottom:24px;
+  }
+  .library-composer label{
+    display:block;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin:14px 0 8px;
+  }
+  .library-composer label:first-child{margin-top:0;}
+  .library-composer input[type=text],
+  .library-composer select,
+  .library-composer textarea{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:18px;
+    padding:10px 12px;
+    outline:none;
+  }
+  .library-composer input[type=text]:focus,
+  .library-composer select:focus,
+  .library-composer textarea:focus{border-color:var(--ember);}
+  .library-composer textarea{resize:vertical;}
+
+  .library-shelf-wrap{
+    background:linear-gradient(180deg, rgba(0,0,0,0.1), rgba(0,0,0,0.3));
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:30px 24px 14px;
+  }
+  .library-shelf{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    gap:6px;
+    min-height:200px;
+    padding-bottom:18px;
+    border-bottom:8px solid #2a1c10;
+    position:relative;
+  }
+  .library-shelf::after{
+    content:'';
+    position:absolute;
+    bottom:-14px;
+    left:-6px;
+    right:-6px;
+    height:6px;
+    background:linear-gradient(180deg, #1c1209, #0d0805);
+  }
+  .tome-spine{
+    width:42px;
+    height:180px;
+    border-radius:3px 3px 0 0;
+    cursor:pointer;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding-top:14px;
+    box-shadow:inset -4px 0 8px rgba(0,0,0,0.3), 2px 0 4px rgba(0,0,0,0.4);
+    transition:transform .15s;
+    position:relative;
+    flex-shrink:0;
+  }
+  .tome-spine:hover, .tome-spine:focus-visible{
+    transform:translateY(-10px);
+    outline:none;
+  }
+  .tome-spine-text{
+    writing-mode:vertical-rl;
+    text-orientation:mixed;
+    font-size:13px;
+    color:rgba(255,255,255,0.9);
+    font-weight:bold;
+    max-height:150px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    letter-spacing:0.5px;
+  }
+  .library-shelf .empty-state{
+    width:100%;
+  }
+
+  .tome-view{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:28px;
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+  }
+  .tome-view-cover{
+    width:120px;
+    height:170px;
+    border-radius:3px 3px 0 0;
+    flex-shrink:0;
+    box-shadow:3px 3px 8px rgba(0,0,0,0.4);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:14px;
+    color:rgba(255,255,255,0.9);
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    line-height:1.5;
+  }
+  .tome-view-info{
+    flex:1;
+    min-width:220px;
+  }
+  .tome-view-type{
+    font-family:'Press Start 2P', monospace;
+    font-size:10px;
+    color:var(--gold);
+    margin-bottom:8px;
+  }
+  .tome-view-title{
+    font-size:30px;
+    margin:0 0 6px;
+    color:var(--text);
+  }
+  .tome-view-author{
+    font-size:18px;
+    color:var(--text-dim);
+    font-style:italic;
+    margin-bottom:14px;
+  }
+  .tome-view-notes{
+    font-size:18px;
+    line-height:1.6;
+    color:var(--text);
+    white-space:pre-wrap;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:2px solid var(--brick-edge);
+  }
+
   .empty-state{
     text-align:center;
     padding:60px 20px;
@@ -1540,6 +1715,7 @@
         <button class="side-btn" id="nav-daily" onclick="showView('daily')">✦ DAILY LIFE</button>
         <button class="side-btn" id="nav-travel" onclick="showView('travel')">⚓ TRAVEL MAP</button>
         <button class="side-btn" id="nav-analytics" onclick="showView('analytics')">⏳ ANALYTICS</button>
+        <button class="side-btn" id="nav-library" onclick="showView('library')">📚 GALDERA'S LIBRARY</button>
         <button class="side-btn" id="nav-new" onclick="requireAuth(()=>showView('new'))">+ NEW POST</button>
       </div>
     </div>
@@ -1568,7 +1744,7 @@
 
     <header class="titleblock">
       <h1 class="logo">GALDERA</h1>
-      <div class="subtitle">reviews from the accurst flame</div>
+      <div class="subtitle">Galdera's reviews and tidbits</div>
     </header>
 
     <section id="view-home">
@@ -1735,6 +1911,51 @@
         <div class="loading-row">READING THE TIMESTREAM...</div>
       </div>
     </section>
+
+    <section id="view-library" style="display:none;">
+      <h2 class="section-title">GALDERA'S LIBRARY</h2>
+
+      <button class="side-btn" id="libraryComposerToggle" onclick="requireAuth(()=>toggleLibraryComposer())" style="margin-bottom:20px;">+ ADD A TOME</button>
+
+      <div class="library-composer" id="libraryComposer" style="display:none;">
+        <label for="lib-title">TITLE</label>
+        <input type="text" id="lib-title" placeholder="e.g. The Name of the Wind">
+
+        <label for="lib-author">AUTHOR</label>
+        <input type="text" id="lib-author" placeholder="e.g. Patrick Rothfuss">
+
+        <label for="lib-type">TYPE</label>
+        <select id="lib-type">
+          <option value="Book">Book</option>
+          <option value="Manga">Manga</option>
+          <option value="Light Novel">Light Novel</option>
+        </select>
+
+        <label>RATING (out of 5)</label>
+        <div class="score-picker" id="lib-score-picker">
+          <button type="button" data-v="1">📖</button>
+          <button type="button" data-v="2">📖</button>
+          <button type="button" data-v="3">📖</button>
+          <button type="button" data-v="4">📖</button>
+          <button type="button" data-v="5">📖</button>
+        </div>
+        <div class="form-hint">Click a book to set your rating. Click it again to clear.</div>
+
+        <label for="lib-notes">YOUR NOTES (optional)</label>
+        <textarea id="lib-notes" rows="3" placeholder="Thoughts, favorite moments, anything you'd like to remember..."></textarea>
+
+        <button class="submit-btn" onclick="submitTome()" style="margin-top:14px;">► SHELVE IT</button>
+        <div class="status-msg" id="lib-status"></div>
+      </div>
+
+      <div class="library-shelf-wrap">
+        <div id="libraryShelf" class="library-shelf">
+          <div class="loading-row">OPENING THE STACKS...</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-tome" style="display:none;"></section>
 
     <section id="view-new" style="display:none;">
       <h2 class="section-title">INSERT NEW CARTRIDGE</h2>
@@ -2553,7 +2774,20 @@ async function githubGetFileSha(path, token){
   return null;
 }
 
-async function githubPutFile(path, base64Content, message, token){
+// Saves to the same file can race (two quick clicks both read the old SHA,
+// then both try to write — GitHub rejects the second one as a conflict).
+// This queue guarantees only one write to a given path happens at a time,
+// and automatically retries once on a conflict using a fresh SHA.
+const githubSaveQueues = {};
+
+function queueGithubSave(path, saveFn){
+  const prior = githubSaveQueues[path] || Promise.resolve();
+  const next = prior.then(saveFn, saveFn); // run even if the previous save failed
+  githubSaveQueues[path] = next.catch(()=>{}); // keep the queue alive even on error
+  return next;
+}
+
+async function githubPutFileAttempt(path, base64Content, message, token){
   const sha = await githubGetFileSha(path, token);
   const body = { message, content: base64Content, branch: "main" };
   if(sha) body.sha = sha;
@@ -2577,9 +2811,25 @@ async function githubPutFile(path, base64Content, message, token){
       clearStoredToken();
       throw new Error("GitHub token was rejected. Please try again with a valid token.");
     }
-    throw new Error("GitHub file save failed");
+    const err = new Error("GitHub file save failed");
+    err.status = res.status;
+    throw err;
   }
   return res.json();
+}
+
+async function githubPutFile(path, base64Content, message, token){
+  return queueGithubSave(path, async ()=>{
+    try{
+      return await githubPutFileAttempt(path, base64Content, message, token);
+    }catch(e){
+      // 409 = conflict (stale SHA from a race). Retry once with a fresh SHA.
+      if(e.status === 409){
+        return await githubPutFileAttempt(path, base64Content, message, token);
+      }
+      throw e;
+    }
+  });
 }
 
 async function githubFetchJSON(path){
@@ -3202,6 +3452,8 @@ function showView(name){
   document.getElementById('view-daily').style.display = name==='daily' ? '' : 'none';
   document.getElementById('view-travel').style.display = name==='travel' ? '' : 'none';
   document.getElementById('view-analytics').style.display = name==='analytics' ? '' : 'none';
+  document.getElementById('view-library').style.display = name==='library' ? '' : 'none';
+  document.getElementById('view-tome').style.display = name==='tome' ? '' : 'none';
   document.getElementById('nav-home').classList.toggle('active', name==='home');
   document.getElementById('nav-new').classList.toggle('active', name==='new');
   document.getElementById('nav-verses').classList.toggle('active', name==='verses');
@@ -3209,11 +3461,13 @@ function showView(name){
   document.getElementById('nav-daily').classList.toggle('active', name==='daily');
   document.getElementById('nav-travel').classList.toggle('active', name==='travel');
   document.getElementById('nav-analytics').classList.toggle('active', name==='analytics');
+  document.getElementById('nav-library').classList.toggle('active', name==='library' || name==='tome');
   document.body.classList.toggle('sanctuary-mode', name==='verses');
   document.body.classList.toggle('ocean-mode', name==='about');
   document.body.classList.toggle('finis-mode', name==='daily');
   document.body.classList.toggle('travel-mode', name==='travel');
   document.body.classList.toggle('analytics-mode', name==='analytics');
+  document.body.classList.toggle('library-mode', name==='library' || name==='tome');
   if(name==='new'){
     resetForm();
   }
@@ -3231,6 +3485,9 @@ function showView(name){
   if(name==='analytics'){
     spawnStars();
     renderAnalytics();
+  }
+  if(name==='library'){
+    renderLibraryShelf();
   }
   if(name==='travel'){
     initTravelLeafletMap().then(()=>{
@@ -3340,6 +3597,176 @@ function formatDate(ts){
   return d.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
 }
 
+// ---------- Galdera's Library ----------
+const LIBRARY_FILE_PATH = "library.json";
+let libraryTomes = [];
+let libraryScoreValue = 0;
+
+const SPINE_COLORS = [
+  '#6b3a2e', '#3a5238', '#2e3a5e', '#5e3a5e', '#5e4a2e',
+  '#3a5e58', '#5e2e3a', '#4a3a5e', '#2e4a3a', '#5e4a3a'
+];
+
+function spineColorForTitle(title){
+  let hash = 0;
+  for(let i=0; i<title.length; i++){
+    hash = (hash * 31 + title.charCodeAt(i)) >>> 0;
+  }
+  return SPINE_COLORS[hash % SPINE_COLORS.length];
+}
+
+async function loadLibrary(){
+  libraryTomes = await githubFetchJSON(LIBRARY_FILE_PATH);
+  renderLibraryShelf();
+}
+
+async function saveLibrary(){
+  const token = requireGithubToken();
+  if(!token){
+    throw new Error("No GitHub token provided");
+  }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(libraryTomes, null, 2))));
+  await githubPutFile(LIBRARY_FILE_PATH, content, `Update library.json via Galdera site (${new Date().toISOString()})`, token);
+}
+
+function toggleLibraryComposer(){
+  const box = document.getElementById('libraryComposer');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    document.getElementById('lib-title').value = '';
+    document.getElementById('lib-author').value = '';
+    document.getElementById('lib-type').value = 'Book';
+    document.getElementById('lib-notes').value = '';
+    libraryScoreValue = 0;
+    updateLibraryScorePicker();
+    document.getElementById('lib-status').textContent = '';
+  }
+}
+
+document.getElementById('lib-score-picker').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  const v = parseInt(btn.dataset.v);
+  libraryScoreValue = (libraryScoreValue === v) ? 0 : v;
+  updateLibraryScorePicker();
+});
+function updateLibraryScorePicker(){
+  document.querySelectorAll('#lib-score-picker button').forEach(b=>{
+    b.style.opacity = parseInt(b.dataset.v) <= libraryScoreValue ? '1' : '0.3';
+  });
+}
+
+async function submitTome(){
+  const title = document.getElementById('lib-title').value.trim();
+  const author = document.getElementById('lib-author').value.trim();
+  const type = document.getElementById('lib-type').value;
+  const notes = document.getElementById('lib-notes').value.trim();
+  const statusEl = document.getElementById('lib-status');
+
+  if(!title){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! TITLE IS REQUIRED';
+    return;
+  }
+
+  const token = requireGithubToken();
+  if(!token){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! GITHUB TOKEN REQUIRED';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ember-bright)';
+  statusEl.textContent = 'SHELVING...';
+
+  const entry = {
+    id: 'lib_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    title, author, type, notes,
+    score: libraryScoreValue,
+    createdAt: Date.now()
+  };
+
+  libraryTomes.push(entry);
+
+  try{
+    await saveLibrary();
+    statusEl.textContent = '✓ SHELVED!';
+    renderLibraryShelf();
+    setTimeout(()=>{ toggleLibraryComposer(); }, 500);
+  }catch(e){
+    libraryTomes = libraryTomes.filter(t => t.id !== entry.id);
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! SAVE FAILED, TRY AGAIN';
+  }
+}
+
+async function deleteTome(id){
+  const backup = [...libraryTomes];
+  libraryTomes = libraryTomes.filter(t => t.id !== id);
+  try{
+    await saveLibrary();
+    renderLibraryShelf();
+    showView('library');
+  }catch(e){
+    libraryTomes = backup;
+    renderLibraryShelf();
+    alert('Could not remove that tome — check your connection or GitHub token and try again.');
+  }
+}
+
+function renderLibraryShelf(){
+  const shelf = document.getElementById('libraryShelf');
+  if(!shelf) return;
+  if(libraryTomes.length === 0){
+    shelf.innerHTML = `
+      <div class="empty-state">
+        <span class="pixel">THE SHELVES ARE BARE</span>
+        Add your first tome to start filling the library.
+      </div>`;
+    return;
+  }
+  const sorted = [...libraryTomes].sort((a,b)=> b.createdAt - a.createdAt);
+  shelf.innerHTML = sorted.map(t => `
+    <div class="tome-spine" style="background:${spineColorForTitle(t.title)};" tabindex="0" role="button"
+         onclick="openTome('${t.id}')" onkeydown="if(event.key==='Enter')openTome('${t.id}')" title="${escapeHTML(t.title)}">
+      <div class="tome-spine-text">${escapeHTML(t.title)}</div>
+    </div>
+  `).join('');
+}
+
+function tomeRatingHTML(score){
+  let h = '';
+  for(let i=1;i<=5;i++){
+    h += `<span style="opacity:${i<=score?'1':'0.25'};">📖</span> `;
+  }
+  return h;
+}
+
+function openTome(id){
+  const t = libraryTomes.find(x => x.id === id);
+  if(!t) return;
+  const container = document.getElementById('view-tome');
+  const spineColor = spineColorForTitle(t.title);
+  container.innerHTML = `
+    <div class="tome-view">
+      <div class="tome-view-cover" style="background:${spineColor};">${escapeHTML(t.title)}</div>
+      <div class="tome-view-info">
+        <button class="back-btn" onclick="showView('library')">◄ BACK TO THE SHELVES</button>
+        <div class="tome-view-type">${escapeHTML(t.type || 'Book').toUpperCase()}</div>
+        <h2 class="tome-view-title">${escapeHTML(t.title)}</h2>
+        ${t.author ? `<div class="tome-view-author">by ${escapeHTML(t.author)}</div>` : ''}
+        ${t.score > 0 ? `<div>${tomeRatingHTML(t.score)}</div>` : ''}
+        ${t.notes ? `<div class="tome-view-notes">${escapeHTML(t.notes)}</div>` : ''}
+        <div class="post-actions">
+          <button class="danger-btn" onclick="requireAuth(()=>deleteTome('${t.id}'))">REMOVE FROM SHELF</button>
+        </div>
+      </div>
+    </div>
+  `;
+  showView('tome');
+}
+
 function openPost(id){
   const p = posts.find(x=>x.id===id);
   if(!p) return;
@@ -3426,6 +3853,7 @@ loadPosts();
 loadDailyPosts();
 loadCustomVerses();
 loadTravelData();
+loadLibrary();
 </script>
 
 </body>
