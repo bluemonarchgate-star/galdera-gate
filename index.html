@@ -39,36 +39,39 @@
   }
 
   body.sanctuary-mode{
-    --ember:#3a8de8;
-    --ember-bright:#6fb4ff;
-    --brick:#f4f1ea;
-    --brick-edge:#d8d2c2;
-    --stone-deep:#ffffff;
-    --text:#2a2620;
-    --text-dim:#6b6354;
-    --gold:#3a6fc9;
-    background:#ffffff;
+    --ember:#d4af37;
+    --ember-bright:#f5d576;
+    --brick:#2a1810;
+    --brick-edge:#6b3a20;
+    --stone-deep:#160d08;
+    --text:#f0e2c0;
+    --text-dim:#b89868;
+    --gold:#d4af37;
+    --blood:#5c1a1a;
+    --blood-bright:#8b2c2c;
+    background:radial-gradient(ellipse at 50% 0%, #3a2010 0%, #1f1208 50%, #100a05 100%);
     background-image:none;
-    color:#2a2620;
+    color:#f0e2c0;
   }
   body.sanctuary-mode .ember-spark{
-    box-shadow:0 0 8px 1px rgba(58,141,232,0.7);
+    background:#f5d576;
+    box-shadow:0 0 8px 2px rgba(212,175,55,0.8);
   }
 
   body.ocean-mode{
-    --ember:#bfe3ff;
-    --ember-bright:#ffffff;
-    --brick:#0d3a5c;
-    --brick-edge:#1e6091;
-    --stone-deep:#041c2e;
-    --text:#eaf6ff;
-    --text-dim:#8fb8d6;
-    --gold:#ffe89a;
-    --blood:#0a4d75;
-    --blood-bright:#2f86c4;
-    background:linear-gradient(180deg, #062f4d 0%, #04223a 55%, #021627 100%);
+    --ember:#e8a23e;
+    --ember-bright:#ffd27a;
+    --brick:#1f3a4a;
+    --brick-edge:#3a5e72;
+    --stone-deep:#0f2330;
+    --text:#f3ece0;
+    --text-dim:#a8bcc6;
+    --gold:#ffcf80;
+    --blood:#2c5468;
+    --blood-bright:#4f8aa3;
+    background:linear-gradient(180deg, #2b4a5c 0%, #1a3340 45%, #0d1f29 100%);
     background-image:none;
-    color:#eaf6ff;
+    color:#f3ece0;
   }
   body.ocean-mode .ember-layer{
     display:none;
@@ -332,6 +335,53 @@
     .globe-band{animation:none; transform:translateX(15%) scaleX(1); opacity:0.7;}
   }
 
+  .moon-wrap{
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1px solid var(--brick-edge);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+  }
+  .moon-icon{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    background:#2a2438;
+    position:relative;
+    overflow:hidden;
+    flex-shrink:0;
+    box-shadow:0 0 8px rgba(201,150,58,0.25);
+  }
+  .moon-icon .moon-lit{
+    position:absolute;
+    top:0;
+    height:100%;
+    background:var(--gold);
+  }
+  .moon-label{
+    font-size:14px;
+    color:var(--text-dim);
+    line-height:1.3;
+    text-align:left;
+  }
+
+  .visitor-counter{
+    margin-top:16px;
+    text-align:center;
+    border:2px solid var(--brick-edge);
+    background:rgba(0,0,0,0.3);
+    padding:10px;
+  }
+  .visitor-count{
+    font-family:'Press Start 2P', monospace;
+    font-size:18px;
+    color:var(--gold);
+    margin-top:6px;
+    letter-spacing:1px;
+  }
+
   .sidebar-label{
     font-family:'Press Start 2P', monospace;
     font-size:9px;
@@ -472,6 +522,104 @@
   .weather-suggestion-item:last-child{border-bottom:none;}
   .weather-suggestion-item:hover,
   .weather-suggestion-item.highlighted{
+    background:var(--brick);
+    color:var(--ember-bright);
+  }
+
+  .verses-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
+    gap:16px;
+  }
+  .verse-card{
+    background:var(--brick);
+    border:2px solid var(--brick-edge);
+    padding:18px;
+    transition:background-color .5s, border-color .5s;
+  }
+  .verse-card-text{
+    font-style:italic;
+    font-size:17px;
+    line-height:1.5;
+    color:var(--text);
+  }
+  .verse-card-ref{
+    margin-top:10px;
+    font-family:'Press Start 2P', monospace;
+    font-size:9px;
+    color:var(--ember);
+    letter-spacing:0.5px;
+  }
+  .verse-card-meta-row{
+    margin-top:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .verse-card-delete{
+    background:none;
+    border:none;
+    color:var(--text-dim);
+    font-size:12px;
+    text-decoration:underline;
+    cursor:pointer;
+  }
+  .verse-card-delete:hover{color:#ff6b6b;}
+
+  .verse-composer{
+    background:var(--brick);
+    border:3px solid var(--brick-edge);
+    box-shadow:6px 6px 0 var(--stone-deep);
+    padding:24px;
+    margin-bottom:20px;
+  }
+  .verse-composer label{
+    display:block;
+    font-family:'Press Start 2P', monospace;
+    font-size:11px;
+    color:var(--gold);
+    margin:14px 0 8px;
+  }
+  .verse-composer label:first-child{margin-top:0;}
+  .verse-composer input[type=text],
+  .verse-composer textarea{
+    width:100%;
+    background:var(--stone-deep);
+    border:2px solid var(--brick-edge);
+    color:var(--text);
+    font-family:'VT323', monospace;
+    font-size:18px;
+    padding:10px 12px;
+    outline:none;
+  }
+  .verse-composer input[type=text]:focus,
+  .verse-composer textarea:focus{border-color:var(--ember);}
+  .verse-composer textarea{resize:vertical;}
+  .verse-ref-wrap{position:relative;}
+  .verse-suggestions{
+    position:absolute;
+    top:100%;
+    left:0;
+    right:0;
+    background:var(--stone-deep);
+    border:2px solid var(--ember);
+    border-top:none;
+    max-height:180px;
+    overflow-y:auto;
+    z-index:30;
+    display:none;
+  }
+  .verse-suggestions.visible{display:block;}
+  .verse-suggestion-item{
+    padding:8px 10px;
+    font-size:15px;
+    color:var(--text);
+    cursor:pointer;
+    border-bottom:1px solid var(--brick-edge);
+  }
+  .verse-suggestion-item:last-child{border-bottom:none;}
+  .verse-suggestion-item:hover,
+  .verse-suggestion-item.highlighted{
     background:var(--brick);
     color:var(--ember-bright);
   }
@@ -638,31 +786,6 @@
   }
   .flame{font-size:16px; color:#3a2620;}
   .flame.filled{color:var(--ember);}
-
-  .verses-grid{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(260px, 1fr));
-    gap:16px;
-  }
-  .verse-card{
-    background:var(--brick);
-    border:2px solid var(--brick-edge);
-    padding:18px;
-    transition:background-color .5s, border-color .5s;
-  }
-  .verse-card-text{
-    font-style:italic;
-    font-size:17px;
-    line-height:1.5;
-    color:var(--text);
-  }
-  .verse-card-ref{
-    margin-top:10px;
-    font-family:'Press Start 2P', monospace;
-    font-size:9px;
-    color:var(--ember);
-    letter-spacing:0.5px;
-  }
 
   .lang-toggle{
     display:flex;
@@ -1239,6 +1362,15 @@
           <div class="globe-shine"></div>
         </div>
       </div>
+      <div class="moon-wrap" id="moonWrap" title="Tonight's moon phase">
+        <div class="moon-icon" id="moonIcon"></div>
+        <div class="moon-label" id="moonLabel">—</div>
+      </div>
+    </div>
+
+    <div class="visitor-counter" id="visitorCounter">
+      <div class="sidebar-label">VISITORS</div>
+      <div class="visitor-count" id="visitorCount">···</div>
     </div>
 
     <div>
@@ -1296,6 +1428,24 @@
 
     <section id="view-verses" style="display:none;">
       <h2 class="section-title">SCRIPTURE</h2>
+
+      <button class="side-btn" id="verseComposerToggle" onclick="requireAuth(()=>toggleVerseComposer())" style="margin-bottom:20px;">+ ADD A VERSE</button>
+
+      <div class="verse-composer" id="verseComposer" style="display:none;">
+        <label for="verse-ref-input">REFERENCE</label>
+        <div class="verse-ref-wrap">
+          <input type="text" id="verse-ref-input" placeholder="e.g. Psalm 23:1 or John 3:16" autocomplete="off">
+          <div class="verse-suggestions" id="verseSuggestions"></div>
+        </div>
+        <div class="form-hint">Start typing a book name and pick from the list, then add the chapter:verse yourself (e.g. "Psalm" → "Psalm 23:1").</div>
+
+        <label for="verse-text-input">VERSE TEXT</label>
+        <textarea id="verse-text-input" rows="3" placeholder="Paste the verse text here (use a translation you have the right to use, e.g. a public-domain one like the KJV)"></textarea>
+
+        <button class="submit-btn" onclick="submitNewVerse()" style="margin-top:14px;">► ADD VERSE</button>
+        <div class="status-msg" id="verse-status"></div>
+      </div>
+
       <div class="verses-grid" id="versesGrid"></div>
     </section>
 
@@ -1305,11 +1455,9 @@
       <div class="lang-toggle" id="langToggle">
         <button class="lang-btn active" data-lang="en" onclick="setAboutLang('en')">EN</button>
         <button class="lang-btn" data-lang="gr" onclick="setAboutLang('gr')">ΕΛ</button>
-        <button class="lang-btn" data-lang="grc" onclick="setAboutLang('grc')">ΑΡΧ</button>
         <button class="lang-btn" data-lang="de" onclick="setAboutLang('de')">DE</button>
-        <button class="lang-btn" data-lang="es" onclick="setAboutLang('es')">ES</button>
         <button class="lang-btn" data-lang="ja" onclick="setAboutLang('ja')">日本語</button>
-        <button class="lang-btn" data-lang="bar" onclick="setAboutLang('bar')">BOA</button>
+        <button class="lang-btn" data-lang="ksh" onclick="setAboutLang('ksh')">KÖLSCH</button>
       </div>
 
       <div class="about-card">
@@ -1328,9 +1476,8 @@
             <span class="about-tag">Ἀρχαία Ἑλληνικά</span>
             <span class="about-tag">English</span>
             <span class="about-tag">Deutsch</span>
-            <span class="about-tag">Español</span>
             <span class="about-tag">日本語</span>
-            <span class="about-tag">Boarisch</span>
+            <span class="about-tag">Kölsch</span>
           </div>
         </div>
 
@@ -1599,6 +1746,89 @@ function highlightMiniCal(){
   if(cell) cell.classList.add('today');
 }
 
+// ---------- moon phase ----------
+// Uses a standard astronomical approximation based on the synodic month
+// (~29.53 days). Accurate to within about a day, which is plenty for a
+// decorative sidebar widget.
+function getMoonPhase(date){
+  const synodicMonth = 29.530588853;
+  const knownNewMoon = Date.UTC(2000, 0, 6, 18, 14); // a known new moon reference point
+  const diffDays = (date.getTime() - knownNewMoon) / 86400000;
+  let phase = (diffDays % synodicMonth) / synodicMonth;
+  if(phase < 0) phase += 1;
+  return phase; // 0 = new moon, 0.5 = full moon, 1 = back to new moon
+}
+
+function moonPhaseLabel(phase){
+  if(phase < 0.03 || phase > 0.97) return 'New Moon';
+  if(phase < 0.22) return 'Waxing Crescent';
+  if(phase < 0.28) return 'First Quarter';
+  if(phase < 0.47) return 'Waxing Gibbous';
+  if(phase < 0.53) return 'Full Moon';
+  if(phase < 0.72) return 'Waning Gibbous';
+  if(phase < 0.78) return 'Last Quarter';
+  return 'Waning Crescent';
+}
+
+function renderMoonPhase(){
+  const phase = getMoonPhase(new Date());
+  const label = moonPhaseLabel(phase);
+  document.getElementById('moonLabel').textContent = label;
+
+  // Render the lit portion of the moon icon as a sliding gold panel,
+  // simulating the illuminated fraction without needing image assets.
+  const icon = document.getElementById('moonIcon');
+  icon.innerHTML = '';
+  const lit = document.createElement('div');
+  lit.className = 'moon-lit';
+
+  // illuminated fraction approximation: 0 at new moon, 1 at full moon
+  const illumination = (1 - Math.cos(phase * 2 * Math.PI)) / 2;
+  const widthPct = Math.round(illumination * 100);
+
+  if(phase <= 0.5){
+    // waxing: light grows from the right edge
+    lit.style.right = '0';
+    lit.style.left = 'auto';
+    lit.style.width = widthPct + '%';
+  }else{
+    // waning: light shrinks from the left edge
+    lit.style.left = '0';
+    lit.style.right = 'auto';
+    lit.style.width = widthPct + '%';
+  }
+  icon.appendChild(lit);
+}
+
+// ---------- visitor counter ----------
+const VISITOR_COUNT_FILE_PATH = "visitor-count.json";
+
+async function loadAndIncrementVisitorCount(){
+  const countEl = document.getElementById('visitorCount');
+  try{
+    const data = await githubFetchJSON(VISITOR_COUNT_FILE_PATH);
+    let count = (data && typeof data.count === 'number') ? data.count : 0;
+    count += 1;
+    countEl.textContent = count.toLocaleString();
+
+    // Best-effort write-back using a public, unauthenticated-friendly approach:
+    // only attempt the increment if a token is already saved (owner's browser),
+    // so casual visitors never get a token prompt just from loading the page.
+    const token = getStoredToken ? getStoredToken() : null;
+    if(token){
+      const content = btoa(unescape(encodeURIComponent(JSON.stringify({ count }, null, 2))));
+      try{
+        await githubPutFile(VISITOR_COUNT_FILE_PATH, content, `Increment visitor count (${new Date().toISOString()})`, token);
+      }catch(e){
+        // Non-critical — counter still displays correctly, just didn't persist this visit.
+        console.warn('Visitor count write skipped:', e);
+      }
+    }
+  }catch(e){
+    countEl.textContent = '—';
+  }
+}
+
 // ---------- bible verse rotator ----------
 const VERSES = [
   { text: 'The Lord is near to all who call on him, to all who call on him in truth.', ref: 'Psalm 145:18' },
@@ -1630,16 +1860,208 @@ function nextVerse(){
   const el = document.getElementById('verseRotator');
   el.classList.add('fading');
   setTimeout(()=>{
+    const allVerses = VERSES.concat(customVerses);
     let next;
     do{
-      next = Math.floor(Math.random() * VERSES.length);
-    }while(next === currentVerseIndex && VERSES.length > 1);
+      next = Math.floor(Math.random() * allVerses.length);
+    }while(next === currentVerseIndex && allVerses.length > 1);
     currentVerseIndex = next;
-    const v = VERSES[currentVerseIndex];
+    const v = allVerses[currentVerseIndex];
     document.getElementById('verseText').textContent = `☦ "${v.text}"`;
     document.getElementById('verseCite').textContent = `— ${v.ref}`;
     el.classList.remove('fading');
   }, 200);
+}
+
+// ---------- custom verses (user-added, stored via GitHub) ----------
+const CUSTOM_VERSES_FILE_PATH = "custom-verses.json";
+let customVerses = [];
+
+const BIBLE_BOOKS = [
+  "Genesis","Exodus","Leviticus","Numbers","Deuteronomy","Joshua","Judges","Ruth",
+  "1 Samuel","2 Samuel","1 Kings","2 Kings","1 Chronicles","2 Chronicles","Ezra","Nehemiah",
+  "Esther","Job","Psalm","Proverbs","Ecclesiastes","Song of Solomon","Isaiah","Jeremiah",
+  "Lamentations","Ezekiel","Daniel","Hosea","Joel","Amos","Obadiah","Jonah","Micah",
+  "Nahum","Habakkuk","Zephaniah","Haggai","Zechariah","Malachi",
+  "Matthew","Mark","Luke","John","Acts","Romans","1 Corinthians","2 Corinthians",
+  "Galatians","Ephesians","Philippians","Colossians","1 Thessalonians","2 Thessalonians",
+  "1 Timothy","2 Timothy","Titus","Philemon","Hebrews","James","1 Peter","2 Peter",
+  "1 John","2 John","3 John","Jude","Revelation"
+];
+
+async function loadCustomVerses(){
+  customVerses = await githubFetchJSON(CUSTOM_VERSES_FILE_PATH);
+  renderVersesGrid();
+}
+
+async function saveCustomVerses(){
+  const token = requireGithubToken();
+  if(!token){
+    throw new Error("No GitHub token provided");
+  }
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(customVerses, null, 2))));
+  await githubPutFile(CUSTOM_VERSES_FILE_PATH, content, `Update custom-verses.json via Galdera site (${new Date().toISOString()})`, token);
+}
+
+function toggleVerseComposer(){
+  const box = document.getElementById('verseComposer');
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    document.getElementById('verse-ref-input').value = '';
+    document.getElementById('verse-text-input').value = '';
+    document.getElementById('verse-status').textContent = '';
+    hideVerseSuggestions();
+  }
+}
+
+async function submitNewVerse(){
+  const ref = document.getElementById('verse-ref-input').value.trim();
+  const text = document.getElementById('verse-text-input').value.trim();
+  const statusEl = document.getElementById('verse-status');
+
+  if(!ref || !text){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! REFERENCE AND VERSE TEXT ARE REQUIRED';
+    return;
+  }
+
+  const token = requireGithubToken();
+  if(!token){
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! GITHUB TOKEN REQUIRED TO ADD A VERSE';
+    return;
+  }
+
+  statusEl.style.color = 'var(--ember-bright)';
+  statusEl.textContent = 'SAVING...';
+
+  const entry = {
+    id: 'v_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    ref, text,
+    createdAt: Date.now()
+  };
+
+  customVerses.push(entry);
+
+  try{
+    await saveCustomVerses();
+    statusEl.textContent = '✓ VERSE ADDED!';
+    renderVersesGrid();
+    setTimeout(()=>{ toggleVerseComposer(); }, 500);
+  }catch(e){
+    customVerses = customVerses.filter(v => v.id !== entry.id);
+    statusEl.style.color = 'var(--blood-bright)';
+    statusEl.textContent = '! SAVE FAILED, TRY AGAIN';
+  }
+}
+
+async function deleteCustomVerse(id){
+  const backup = [...customVerses];
+  customVerses = customVerses.filter(v => v.id !== id);
+  try{
+    await saveCustomVerses();
+    renderVersesGrid();
+  }catch(e){
+    customVerses = backup;
+    renderVersesGrid();
+    alert('Could not delete the verse — check your connection or GitHub token and try again.');
+  }
+}
+
+// ---------- book name autocomplete for the verse reference field ----------
+let verseSuggestionMatches = [];
+let verseSuggestionHighlight = -1;
+
+function hideVerseSuggestions(){
+  const box = document.getElementById('verseSuggestions');
+  box.classList.remove('visible');
+  box.innerHTML = '';
+  verseSuggestionMatches = [];
+  verseSuggestionHighlight = -1;
+}
+
+function renderVerseSuggestions(){
+  const box = document.getElementById('verseSuggestions');
+  if(verseSuggestionMatches.length === 0){
+    hideVerseSuggestions();
+    return;
+  }
+  box.innerHTML = verseSuggestionMatches.map((book, i) => `
+    <div class="verse-suggestion-item ${i===verseSuggestionHighlight?'highlighted':''}" data-i="${i}">${escapeHTML(book)}</div>
+  `).join('');
+  box.classList.add('visible');
+}
+
+function handleVerseRefInput(){
+  const input = document.getElementById('verse-ref-input');
+  const query = input.value.trim().toLowerCase();
+
+  if(query.length < 1){
+    hideVerseSuggestions();
+    return;
+  }
+
+  verseSuggestionMatches = BIBLE_BOOKS.filter(b => b.toLowerCase().startsWith(query)).slice(0, 8);
+  verseSuggestionHighlight = -1;
+  renderVerseSuggestions();
+}
+
+function selectVerseSuggestion(i){
+  const book = verseSuggestionMatches[i];
+  if(!book) return;
+  document.getElementById('verse-ref-input').value = book + ' ';
+  hideVerseSuggestions();
+  document.getElementById('verse-ref-input').focus();
+}
+
+document.getElementById('verse-ref-input').addEventListener('input', handleVerseRefInput);
+
+document.getElementById('verse-ref-input').addEventListener('keydown', (e)=>{
+  if(verseSuggestionMatches.length === 0) return;
+  if(e.key === 'ArrowDown'){
+    e.preventDefault();
+    verseSuggestionHighlight = Math.min(verseSuggestionHighlight + 1, verseSuggestionMatches.length - 1);
+    renderVerseSuggestions();
+  }else if(e.key === 'ArrowUp'){
+    e.preventDefault();
+    verseSuggestionHighlight = Math.max(verseSuggestionHighlight - 1, 0);
+    renderVerseSuggestions();
+  }else if(e.key === 'Enter'){
+    if(verseSuggestionHighlight >= 0){
+      e.preventDefault();
+      selectVerseSuggestion(verseSuggestionHighlight);
+    }
+  }else if(e.key === 'Escape'){
+    hideVerseSuggestions();
+  }
+});
+
+document.getElementById('verseSuggestions').addEventListener('click', (e)=>{
+  const item = e.target.closest('.verse-suggestion-item');
+  if(!item) return;
+  selectVerseSuggestion(parseInt(item.dataset.i));
+});
+
+document.addEventListener('click', (e)=>{
+  if(!e.target.closest('.verse-ref-wrap')){
+    hideVerseSuggestions();
+  }
+});
+
+function renderVersesGrid(){
+  const grid = document.getElementById('versesGrid');
+  const allVerses = VERSES.concat(customVerses.map(v => ({ text: v.text, ref: v.ref, id: v.id, custom: true })));
+
+  grid.innerHTML = allVerses.map(v => `
+    <div class="verse-card">
+      <div class="verse-card-text">☦ "${escapeHTML(v.text)}"</div>
+      <div class="verse-card-meta-row">
+        <div class="verse-card-ref">${escapeHTML(v.ref)}</div>
+        ${v.custom ? `<button class="verse-card-delete" onclick="requireAuth(()=>deleteCustomVerse('${v.id}'))">delete</button>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 // ---------- music ----------
@@ -2304,7 +2726,7 @@ const ABOUT_TRANSLATIONS = {
     labelLangs: "LANGUAGES I SPEAK",
     labelAnime: "ANIME I LOVE",
     labelLikes: "THINGS I LOVE",
-    likes: ["⛵ the sea", "🎵 music", "🎬 movies", "☕ a good cup of coffee", "📖 a good book"]
+    likes: ["⛵ the sea", "🎵 music", "🎬 movies", "☕ a good cup of coffee", "📖 a good book", "🎲 D&D", "🐉 Game of Thrones", "💍 Lord of the Rings", "✒️ poetry", "📚 literature", "🚩 vexillology", "🎯 tabletop games", "🎮 video games"]
   },
   gr: {
     tagline: "24 · Ελλάδα · γεννημένος έναν Φεβρουάριο",
@@ -2313,7 +2735,7 @@ const ABOUT_TRANSLATIONS = {
     labelLangs: "ΓΛΩΣΣΕΣ ΠΟΥ ΜΙΛΑΩ",
     labelAnime: "ANIME ΠΟΥ ΑΓΑΠΩ",
     labelLikes: "ΠΡΑΓΜΑΤΑ ΠΟΥ ΑΓΑΠΩ",
-    likes: ["⛵ τη θάλασσα", "🎵 τη μουσική", "🎬 τις ταινίες", "☕ έναν καλό καφέ", "📖 ένα καλό βιβλίο"]
+    likes: ["⛵ τη θάλασσα", "🎵 τη μουσική", "🎬 τις ταινίες", "☕ έναν καλό καφέ", "📖 ένα καλό βιβλίο", "🎲 D&D", "🐉 Game of Thrones", "💍 Lord of the Rings", "✒️ ποίηση", "📚 λογοτεχνία", "🚩 σημαιολογία", "🎯 επιτραπέζια παιχνίδια", "🎮 video games"]
   },
   grc: {
     tagline: "κδ' ἔτη · Ἑλλάς · γεννηθεὶς Φεβρουαρίῳ μηνί",
@@ -2322,7 +2744,7 @@ const ABOUT_TRANSLATIONS = {
     labelLangs: "ΓΛΩΣΣΑΙ ΑΣ ΛΑΛΩ",
     labelAnime: "ἃ ἀγαπῶ ἐκ τῶν ΙΑΠΩΝΙΚΩΝ ΕΙΚΟΝΟΓΡΑΦΗΜΑΤΩΝ",
     labelLikes: "ἃ ΑΓΑΠΩ",
-    likes: ["⛵ τὴν θάλασσαν", "🎵 τὴν μουσικήν", "🎬 τὰ θεάματα", "☕ καλὸν κάφε", "📖 καλὸν βιβλίον"]
+    likes: ["⛵ τὴν θάλασσαν", "🎵 τὴν μουσικήν", "🎬 τὰ θεάματα", "☕ καλὸν κάφε", "📖 καλὸν βιβλίον", "🎲 D&D", "🐉 Game of Thrones", "💍 Lord of the Rings", "✒️ ποίησιν", "📚 γράμματα", "🚩 σημαιολογίαν", "🎯 ἐπιτράπεζα παίγνια", "🎮 video games"]
   },
   de: {
     tagline: "24 · Griechenland · geboren im Februar",
@@ -2331,16 +2753,7 @@ const ABOUT_TRANSLATIONS = {
     labelLangs: "SPRACHEN, DIE ICH SPRECHE",
     labelAnime: "ANIME, DIE ICH LIEBE",
     labelLikes: "DINGE, DIE ICH LIEBE",
-    likes: ["⛵ das Meer", "🎵 Musik", "🎬 Filme", "☕ eine gute Tasse Kaffee", "📖 ein gutes Buch"]
-  },
-  es: {
-    tagline: "24 · Grecia · nacido en febrero",
-    labelWho: "QUIÉN SOY",
-    who: "Me llamo Galdera y tengo 24 años, soy de Grecia. Tengo una licenciatura en Lengua y Literatura Alemanas, y un Máster en Logística y Gestión de la Cadena de Suministro. Soy nerd y otaku de corazón, con un profundo amor por la geografía, la historia y los idiomas extranjeros. También soy cristiano ortodoxo.",
-    labelLangs: "IDIOMAS QUE HABLO",
-    labelAnime: "ANIME QUE ME ENCANTA",
-    labelLikes: "COSAS QUE ME ENCANTAN",
-    likes: ["⛵ el mar", "🎵 la música", "🎬 las películas", "☕ una buena taza de café", "📖 un buen libro"]
+    likes: ["⛵ das Meer", "🎵 Musik", "🎬 Filme", "☕ eine gute Tasse Kaffee", "📖 ein gutes Buch", "🎲 D&D", "🐉 Game of Thrones", "💍 Der Herr der Ringe", "✒️ Poesie", "📚 Literatur", "🚩 Flaggenkunde", "🎯 Brettspiele", "🎮 Videospiele"]
   },
   ja: {
     tagline: "24歳 · ギリシャ出身 · 2月生まれ",
@@ -2349,16 +2762,16 @@ const ABOUT_TRANSLATIONS = {
     labelLangs: "話せる言語",
     labelAnime: "好きなアニメ",
     labelLikes: "好きなもの",
-    likes: ["⛵ 海", "🎵 音楽", "🎬 映画", "☕ 美味しいコーヒー", "📖 良い本"]
+    likes: ["⛵ 海", "🎵 音楽", "🎬 映画", "☕ 美味しいコーヒー", "📖 良い本", "🎲 ダンジョンズ&ドラゴンズ", "🐉 ゲーム・オブ・スローンズ", "💍 ロード・オブ・ザ・リング", "✒️ 詩", "📚 文学", "🚩 旗章学", "🎯 ボードゲーム", "🎮 ビデオゲーム"]
   },
-  bar: {
-    tagline: "24 · Griachnland · im Februar gebor'n",
-    labelWho: "WER I BIN",
-    who: "I hoaß Galdera und bin 24 Joahr alt, aus Griachnland. I hob a Bachelor in Deitscher Sproch und Literatur, und a Master in Logistik und Supply Chain Management gmacht. I bin im Herzn a Nerd und Otaku, mit ana großn Liab fia Geografie, Gschicht und fremde Sprochn. I bin a a orthodoxer Christ.",
-    labelLangs: "SPROCHN WOS I RED",
-    labelAnime: "ANIME WOS I MAG",
-    labelLikes: "SACHAN WOS I MAG",
-    likes: ["⛵ s' Meer", "🎵 Musi", "🎬 Filme", "☕ a guade Tassn Kaffee", "📖 a guads Buach"]
+  ksh: {
+    tagline: "24 · Jrijjeland · em Fäbrowa jebore",
+    labelWho: "WER ESH BIN",
+    who: "Ish heiße Galdera un ben 24 Johr alt, us Jrijjeland. Ish han ene Bachelor en Düütscher Sproch un Literatur, un ene Master en Logistik un Supply Chain Management. Em Hätze ben ish ene Nerd un Otaku, met enem decke Jeföhl för Jeografie, Jeschisch un fremde Sproche. Ish ben och e orthodoxe Chress.",
+    labelLangs: "SPROCHE WAT ISH KALL",
+    labelAnime: "ANIME WAT ISH JÄR HAN",
+    labelLikes: "SACHE WAT ISH JÄR HAN",
+    likes: ["⛵ et Meer", "🎵 Musik", "🎬 Filme", "☕ ene jode Pott Kaffee", "📖 e jodes Booch", "🎲 D&D", "🐉 Game of Thrones", "💍 Der Herr der Ringe", "✒️ Jedeechte", "📚 Literatur", "🚩 Fahnekunde", "🎯 Brettspiele", "🎮 Videospiele"]
   }
 };
 
@@ -2410,16 +2823,6 @@ function showView(name){
     renderDailyFeed();
   }
   window.scrollTo({top:0, behavior:'smooth'});
-}
-
-function renderVersesGrid(){
-  const grid = document.getElementById('versesGrid');
-  grid.innerHTML = VERSES.map(v => `
-    <div class="verse-card">
-      <div class="verse-card-text">☦ "${escapeHTML(v.text)}"</div>
-      <div class="verse-card-ref">${escapeHTML(v.ref)}</div>
-    </div>
-  `).join('');
 }
 
 async function resetForm(){
@@ -2602,8 +3005,11 @@ spawnEmbers();
 tickClock();
 setInterval(tickClock, 1000);
 highlightMiniCal();
+renderMoonPhase();
+loadAndIncrementVisitorCount();
 loadPosts();
 loadDailyPosts();
+loadCustomVerses();
 </script>
 
 </body>
